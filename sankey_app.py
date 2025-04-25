@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from google.oauth2 import service_account
 from google.cloud import bigquery
-import streamlit as st
+import base64
 
 # 페이지 설정
 st.set_page_config(layout="wide")
@@ -14,15 +14,24 @@ query_params = st.experimental_get_query_params()
 selected_category = query_params.get("category", ["스탠바이미"])[0]
 st.markdown(f"### 🔍 선택된 카테고리: `{selected_category}`")
 
-# BigQuery 연결
-# 📌 비밀키에서 서비스 계정 정보 불러오기
-credentials = service_account.Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"]
-)
+# Secrets에서 base64로 인코딩된 키 불러와 디코딩
+secrets = st.secrets["gcp_service_account"]
+private_key = base64.b64decode(secrets["private_key_b64"]).decode()
 
-# ✅ BigQuery 클라이언트 생성 시 credentials 명시
-client = bigquery.Client(credentials=credentials, project=credentials.project_id)
+credentials = service_account.Credentials.from_service_account_info({
+    "type": secrets["type"],
+    "project_id": secrets["project_id"],
+    "private_key_id": secrets["private_key_id"],
+    "private_key": private_key,
+    "client_email": secrets["client_email"],
+    "client_id": secrets["client_id"],
+    "auth_uri": secrets["auth_uri"],
+    "token_uri": secrets["token_uri"],
+    "auth_provider_x509_cert_url": secrets["auth_provider_x509_cert_url"],
+    "client_x509_cert_url": secrets["client_x509_cert_url"]
+})
 
+client = bigquery.Client(credentials=credentials, project=secrets["project_id"])
 # 쿼리 실행
 query = """
     SELECT source, target, value
