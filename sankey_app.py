@@ -10,7 +10,17 @@ st.set_page_config(layout="wide")
 st.title("🧭 실시간 Sankey 다이어그램")
 
 # UI에서 카테고리 입력 받기
-selected_category = st.text_input('카테고리를 입력하세요:', '냉장고')  # 기본값 '냉장고'
+category_input = st.text_input('카테고리를 입력하세요:', '')  # 텍스트 입력란
+category_select = st.selectbox('카테고리 선택', ['스탠바이미', '냉장고', '세탁기', 'TV'])  # 셀렉트박스
+
+# 최종 카테고리 결정
+if category_input:
+    selected_category = category_input  # 텍스트 입력 값이 있으면 입력 값 사용
+else:
+    selected_category = category_select  # 텍스트 입력 값이 없으면 셀렉트박스 값 사용
+    
+st.markdown(f"### 🔍 선택된 카테고리: `{selected_category}`")
+
 
 # URL 파라미터에서 카테고리 선택값 받기
 # query_params = st.experimental_get_query_params()
