@@ -7,7 +7,7 @@ import base64
 
 # 페이지 설정
 st.set_page_config(layout="wide")
-st.title("🧭 실시간 Sankey 다이어그램")
+st.title("🧭 Sankey Diagram")
 
 # UI에서 카테고리 입력 받기
 category_input = st.text_input('카테고리를 입력하세요:', '')  # 텍스트 입력란
