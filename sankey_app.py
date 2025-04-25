@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+from google.oauth2 import service_account
 from google.cloud import bigquery
+import streamlit as st
 
 # 페이지 설정
 st.set_page_config(layout="wide")
@@ -13,7 +15,13 @@ selected_category = query_params.get("category", ["스탠바이미"])[0]
 st.markdown(f"### 🔍 선택된 카테고리: `{selected_category}`")
 
 # BigQuery 연결
-client = bigquery.Client()
+# 📌 비밀키에서 서비스 계정 정보 불러오기
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
+
+# ✅ BigQuery 클라이언트 생성 시 credentials 명시
+client = bigquery.Client(credentials=credentials, project=credentials.project_id)
 
 # 쿼리 실행
 query = """
