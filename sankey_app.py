@@ -9,25 +9,13 @@ import base64
 st.set_page_config(layout="wide")
 st.title("🧭 실시간 Sankey 다이어그램")
 
-category = st.text_input('카테고리 입력', '')
-# 사용자가 카테고리 입력을 완료하고, 입력된 값이 있을 때만 URL 업데이트
-if category:
-    embed_url = f"https://your-looker-instance.com/embed/dashboards/12345?category={category}"
-
-    # 임베드 URL 표시
-    st.markdown(f"### `{category}` 카테고리로 대시보드 임베드")
-    st.markdown(f"임베드 URL: [여기서 보기]({embed_url})")
-
-    # 임베드된 대시보드 iframe 표시
-    st.markdown(f'<iframe src="{embed_url}" width="100%" height="600"></iframe>', unsafe_allow_html=True)
-else:
-    st.warning('카테고리를 입력하세요.')
-
+# UI에서 카테고리 입력 받기
+selected_category = st.text_input('카테고리를 입력하세요:', '냉장고')  # 기본값 '냉장고'
 
 # URL 파라미터에서 카테고리 선택값 받기
-query_params = st.experimental_get_query_params()
-selected_category = query_params.get("category", ["스탠바이미"])[0]
-st.markdown(f"### 🔍 선택된 카테고리: `{selected_category}`")
+# query_params = st.experimental_get_query_params()
+# selected_category = query_params.get("category", ["스탠바이미"])[0]
+# st.markdown(f"### 🔍 선택된 카테고리: `{selected_category}`")
 
 # 🌐 Streamlit secrets에서 인증 정보 가져오기
 secrets = st.secrets["gcp_service_account"]
