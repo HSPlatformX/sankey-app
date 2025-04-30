@@ -63,9 +63,13 @@ df = df.dropna(subset=['user_session_id', 'step', 'page']) # ✅ 안정화: 필�
 sessions_with_step1 = df[df['step'] == 1]['user_session_id'].unique()
 df = df[df['user_session_id'].isin(sessions_with_step1)]
 
+#문자열 정리
+df['page'] = df['page'].astype(str).str.strip()
+
 # 주문완료 포함 세션만 유지 (이걸 자르기 전에 먼저 적용해야 함!)
 sessions_with_purchase = df[df['page'] == '주문완료']['user_session_id'].unique()
 df = df[df['user_session_id'].isin(sessions_with_purchase)]
+
 
 # 구매완료 이후 단계는 제거하는 함수
 def truncate_after_purchase(df):
