@@ -73,23 +73,24 @@ df = df[df['user_session_id'].isin(sessions_with_purchase)]
 
 # 구매완료 이후 단계는 제거하는 함수
 def truncate_after_purchase(df):
-   trimmed_rows = []
+    trimmed_rows = []
 
     for session_id, group in df.groupby('user_session_id'):
         group_sorted = group.sort_values('step')
         found = False
         for i, row in enumerate(group_sorted.itertuples()):
             if str(row.page).strip() == '주문완료':
-                # ✅ 여기까지 포함하고 stop
+                # ✅ 주문완료까지의 행만 남김
                 trimmed = group_sorted.iloc[:i+1]
                 trimmed_rows.append(trimmed)
                 found = True
                 break
         if not found:
-            # 세션에 주문완료가 없으면 제외 (안정성)
-            continue
+            continue  # 주문완료 없는 세션은 제외
 
+    # ✅ 모든 세션 결과 합치기
     return pd.concat(trimmed_rows).drop_duplicates().reset_index(drop=True)
+
 
 # df에 적용
 df = truncate_after_purchase(df)
