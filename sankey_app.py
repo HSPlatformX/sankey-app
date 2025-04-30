@@ -87,11 +87,11 @@ df = df.dropna(subset=['user_session_id', 'step', 'page']) # ✅ 안정화: 필�
 pairs = []
 for session_id, group in df.groupby('user_session_id'):
     if 'step' in group.columns and 'page' in group.columns and len(group) >= 1:
-    sorted_pages = group.sort_values('step')['page'].tolist()
-    if len(sorted_pages) >= 1:
-        pairs.append(("세션 시작", sorted_pages[0]))  # ✅ 세션 시작점 표시
-    for i in range(len(sorted_pages) - 1):
-        pairs.append((sorted_pages[i], sorted_pages[i + 1]))
+        sorted_pages = group.sort_values('step')['page'].tolist()
+        if len(sorted_pages) >= 1:
+            pairs.append(("세션 시작", sorted_pages[0]))  # ✅ 세션 시작점 표시
+        for i in range(len(sorted_pages) - 1):
+            pairs.append((sorted_pages[i], sorted_pages[i + 1]))
         
 # ✅ 빈도수 집계        
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
