@@ -49,8 +49,8 @@ client = bigquery.Client(credentials=credentials, project=secrets["project_id"])
 query = """
        SELECT user_session_id, step, page
     FROM `lge-big-query-data.hsad.test_0423_2`
+    WHERE category = @category
     ORDER BY user_session_id, step
-    LIMIT 3000
 """
 job_config = bigquery.QueryJobConfig(
     query_parameters=[bigquery.ScalarQueryParameter("category", "STRING", selected_category)]
