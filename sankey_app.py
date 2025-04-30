@@ -100,31 +100,36 @@ pairs_agg = pairs_df.value_counts().reset_index(name='value')
 # ✅ 노드 매핑
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
 node_map = {name: i for i, name in enumerate(all_nodes)}
-# 노드 x 위치 지정 (시작점 고정)
-node_x = []
-for name in node_map.keys():
-    if name == "세션 시작":
-        node_x.append(0.0)
-    else:
-        node_x.append(0.3)  # 나머지는 같은 x로 해도 되고 다르게 설정 가능
-pairs_agg['source_id'] = pairs_agg['source'].map(node_map)
-pairs_agg['target_id'] = pairs_agg['target'].map(node_map)
+
+# ✅ node_x 생성 (노드별 depth 기반 수평 위치 설정)
+depth_map = {}
+
+for session_id, group in df.groupby('user_session_id'):
+    sorted_pages = group.sort_values('step')['page'].tolist()
+    for idx, page in enumerate(sorted_pages):
+        if page not in depth_map or depth_map[page] < idx:
+            depth_map[page] = idx
+    if sorted_pages:
+        depth_map['세션 시작'] = 0  # 강제로 포함시켜줌
+
+# 전체 depth를 0~1 범위로 정규화
+max_depth = max(depth_map.values()) if depth_map else 1
+node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
 
 # 🎯 Sankey 그리기
 fig = go.Figure(data=[go.Sankey(
     node=dict(
-    pad=15,
-    thickness=20,
-    label=list(node_map.keys()),
-    line=dict(color="black", width=0.5),
-    x=node_x  # ✅ 추가
+        pad=15,
+        thickness=20,
+        label=list(node_map.keys()),
+        line=dict(color="black", width=0.5),
+        x=node_x  # ✅ 추가된 수평 위치 적용
     ),
     link=dict(
         source=pairs_agg['source_id'],
         target=pairs_agg['target_id'],
         value=pairs_agg['value']
-    ),
-   
+    )
 )])
 fig.update_layout(title_text=f"세션 기반 Sankey for `{selected_category}`", font_size=10)
 
