@@ -82,6 +82,11 @@ def truncate_after_purchase(df):
 df = truncate_after_purchase(df)
 
 
+# 🔐 truncate 이후에도 '주문완료'가 포함된 세션만 유지 (안전 필터링)
+sessions_with_purchase = df[df['page'] == '주문완료']['user_session_id'].unique()
+df = df[df['user_session_id'].isin(sessions_with_purchase)]
+
+
 # 🛠️ 세션별 흐름 연결
 pairs = []
 
