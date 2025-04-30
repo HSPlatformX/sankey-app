@@ -191,16 +191,17 @@ def extract_step(label):
     match = re.search(r"\((\d+)단계\)", label)
     return int(match.group(1)) if match else 0
 
+# ✅ Sankey에 실제로 포함된 노드만 기반으로 depth 계산
+valid_nodes_set = set(pairs_agg['source']).union(set(pairs_agg['target']))
+
 # 🔧 실제 depth_map
 depth_map = {}
-for session_id, group in df.groupby('user_session_id'):
-    sorted_pages = group.sort_values('step')
-    pages = [f"{row.page} ({row.step}단계)" for row in sorted_pages.itertuples()]
-    if pages:
-        depth_map["세션 시작"] = 0
-    for idx, page in enumerate(pages):
-        if page not in depth_map or depth_map[page] < idx + 1:
-            depth_map[page] = idx + 1  # 1단계부터 시작 (세션 시작은 0)
+for node in valid_nodes_set:
+    if node == '세션 시작':
+        depth_map[node] = 0
+    else:
+        step_num = extract_step(node)
+        depth_map[node] = step_num
 
 # 정규화
 max_depth = max(depth_map.values()) if depth_map else 1
