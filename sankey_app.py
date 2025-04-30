@@ -114,13 +114,24 @@ seed_nodes = pairs_agg[
 
 
 # ✅ BFS 확장 (유효한 흐름만 따라가며 확장)
-valid_nodes = set(seed_nodes) | {'세션 시작'}
+valid_nodes = set(seed_targets) | {'세션 시작'}
+visited_edges = set()
 expanded = True
+
 while expanded:
     current_size = len(valid_nodes)
-    next_targets = pairs_agg[pairs_agg['source'].isin(valid_nodes)]['target'].unique()
-    valid_nodes.update(next_targets)
+    # value ≥ 5인 edge만 따라가기
+    valid_edges = pairs_agg[
+        (pairs_agg['source'].isin(valid_nodes)) &
+        (pairs_agg['value'] >= 5)
+    ]
+
+    for _, row in valid_edges.iterrows():
+        visited_edges.add((row['source'], row['target']))
+        valid_nodes.add(row['target'])
+
     expanded = len(valid_nodes) > current_size
+
 
 # ✅ 최종 필터링 적용
 pairs_agg = pairs_agg[
