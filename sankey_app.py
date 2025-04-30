@@ -85,13 +85,17 @@ df = df.dropna(subset=['user_session_id', 'step', 'page']) # ✅ 안정화: 필�
 
 # 🛠️ 세션별 흐름 연결
 pairs = []
+
 for session_id, group in df.groupby('user_session_id'):
-    if 'step' in group.columns and 'page' in group.columns and len(group) >= 1:
-        sorted_pages = group.sort_values('step')['page'].tolist()
-        if len(sorted_pages) >= 1:
-            pairs.append(("세션 시작", sorted_pages[0]))  # ✅ 세션 시작점 표시
-        for i in range(len(sorted_pages) - 1):
-            pairs.append((sorted_pages[i], sorted_pages[i + 1]))
+    sorted_rows = group.sort_values('step')[['page', 'step']]
+    pages = [f"{row.page} ({row.step}단계)" for row in sorted_rows.itertuples()]
+    
+    if pages:
+        pairs.append(("세션 시작", pages[0]))  # 시작 노드 추가
+    
+    for i in range(len(pages) - 1):
+        pairs.append((pages[i], pages[i + 1]))
+
         
 # ✅ 빈도수 집계        
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
@@ -105,30 +109,30 @@ node_map = {name: i for i, name in enumerate(all_nodes)}
 pairs_agg['source_id'] = pairs_agg['source'].map(node_map)
 pairs_agg['target_id'] = pairs_agg['target'].map(node_map)
 
-# 3. ✅ node_x 생성 (노드별 depth 기반 수평 위치 설정)
-depth_map = {}
 
-for session_id, group in df.groupby('user_session_id'):
-    sorted_pages = group.sort_values('step')['page'].tolist()
-    for idx, page in enumerate(sorted_pages):
-        if page not in depth_map or depth_map[page] < idx:
-            depth_map[page] = idx
-    if sorted_pages:
-        depth_map['세션 시작'] = 0  # 강제로 포함시켜줌
+# 3. ✅ node.x 수동 지정 (단계별로 좌표 계산)
+# 단계 숫자 추출 (정규식 기반)
+import re
+def extract_step(label):
+    if label == "세션 시작":
+        return 0
+    match = re.search(r"\((\d+)단계\)", label)
+    return int(match.group(1)) if match else 0
 
-# 전체 depth를 0~1 범위로 정규화
+depth_map = {name: extract_step(name) for name in node_map.keys()}
 max_depth = max(depth_map.values()) if depth_map else 1
-node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
+node_x = [depth_map[name] / max_depth for name in node_map.keys()]
+
 
 # 🎯 Sankey 그리기
 fig = go.Figure(data=[go.Sankey(
-    arrangement="fixed",  # 좌표강제적용 (세션시작 고정)
+    arrangement="fixed",  # x 좌표 강제 적용
     node=dict(
         pad=15,
         thickness=20,
         label=list(node_map.keys()),
         line=dict(color="black", width=0.5),
-        x=node_x  # ✅ 추가된 수평 위치 적용
+        x=node_x
     ),
     link=dict(
         source=pairs_agg['source_id'],
@@ -136,6 +140,7 @@ fig = go.Figure(data=[go.Sankey(
         value=pairs_agg['value']
     )
 )])
+
 fig.update_layout(
     title_text=f"세션 기반 Sankey for `{selected_category}`",
     font_size=10,
