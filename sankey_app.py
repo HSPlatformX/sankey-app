@@ -100,22 +100,31 @@ pairs_agg = pairs_df.value_counts().reset_index(name='value')
 # ✅ 노드 매핑
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
 node_map = {name: i for i, name in enumerate(all_nodes)}
+# 노드 x 위치 지정 (시작점 고정)
+node_x = []
+for name in node_map.keys():
+    if name == "세션 시작":
+        node_x.append(0.0)
+    else:
+        node_x.append(0.3)  # 나머지는 같은 x로 해도 되고 다르게 설정 가능
 pairs_agg['source_id'] = pairs_agg['source'].map(node_map)
 pairs_agg['target_id'] = pairs_agg['target'].map(node_map)
 
 # 🎯 Sankey 그리기
 fig = go.Figure(data=[go.Sankey(
     node=dict(
-        pad=15,
-        thickness=20,
-        label=list(node_map.keys()),
-        line=dict(color="black", width=0.5)
+    pad=15,
+    thickness=20,
+    label=list(node_map.keys()),
+    line=dict(color="black", width=0.5),
+    x=node_x  # ✅ 추가
     ),
     link=dict(
         source=pairs_agg['source_id'],
         target=pairs_agg['target_id'],
         value=pairs_agg['value']
-    )
+    ),
+   
 )])
 fig.update_layout(title_text=f"세션 기반 Sankey for `{selected_category}`", font_size=10)
 
