@@ -82,28 +82,16 @@ def truncate_after_purchase(df):
 df = truncate_after_purchase(df)
 
 
-# ✅ truncate 이후에도 '주문완료'가 없는 세션이 남아있는지 직접 확인
-sessions_with_purchase = df[df['page'] == '주문완료']['user_session_id'].unique()
-all_sessions = df['user_session_id'].unique()
-
-# 차집합: 주문완료가 없는 세션들
-sessions_without_purchase = set(all_sessions) - set(sessions_with_purchase)
-
-# 결과 출력
-st.write("❗ 주문완료 없는 세션 수:", len(sessions_without_purchase))
-st.write("예시 세션 ID:", list(sessions_without_purchase)[:5])
-
-# 확인용: 이 세션들의 전체 흐름 출력
-if sessions_without_purchase:
-    st.dataframe(df[df['user_session_id'].isin(sessions_without_purchase)])
+# 마지막 step이 '주문완료'인 세션만 유지
+last_steps = df.sort_values(['user_session_id', 'step']).groupby('user_session_id').tail(1)
+valid_sessions = last_steps[last_steps['page'] == '주문완료']['user_session_id'].unique()
+df = df[df['user_session_id'].isin(valid_sessions)]
 
 
 # 🛠️ 세션별 흐름 연결
 pairs = []
 
 for session_id, group in df.groupby('user_session_id'):
-    if '주문완료' not in group['page'].values:
-        continue  # 주문완료 없는 세션은 건너뜀
     sorted_rows = group.sort_values('step')[['page', 'step']]
     pages = [f"{row.page} ({row.step}단계)" for row in sorted_rows.itertuples()]
     
