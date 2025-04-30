@@ -57,7 +57,7 @@ job_config = bigquery.QueryJobConfig(
 )
 
 df = client.query(query, job_config=job_config).to_dataframe()
-
+df = df.dropna(subset=['user_session_id', 'step', 'page']) # ✅ 안정화: 필수 컬럼에 null 있으면 제거
 
 # # 노드 인덱스 맵핑
 # all_nodes = pd.unique(df[['source', 'target']].values.ravel())
@@ -86,7 +86,8 @@ df = client.query(query, job_config=job_config).to_dataframe()
 # 🛠️ 세션별 흐름 연결
 pairs = []
 for session_id, group in df.groupby('user_session_id'):
-    pages = group.sort_values('step')['page'].tolist()
+    if 'step' in group.columns and 'page' in group.columns and len(group) >= 1:
+    sorted_pages = group.sort_values('step')['page'].tolist()
     if len(sorted_pages) >= 1:
         pairs.append(("세션 시작", sorted_pages[0]))  # ✅ 세션 시작점 표시
     for i in range(len(sorted_pages) - 1):
