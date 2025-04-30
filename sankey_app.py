@@ -97,11 +97,15 @@ for session_id, group in df.groupby('user_session_id'):
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
 pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
-# ✅ 노드 매핑
+# 1. ✅ 노드 매핑
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
 node_map = {name: i for i, name in enumerate(all_nodes)}
 
-# ✅ node_x 생성 (노드별 depth 기반 수평 위치 설정)
+# 2. ✅ source/target 인덱스 매핑
+pairs_agg['source_id'] = pairs_agg['source'].map(node_map)
+pairs_agg['target_id'] = pairs_agg['target'].map(node_map)
+
+# 3. ✅ node_x 생성 (노드별 depth 기반 수평 위치 설정)
 depth_map = {}
 
 for session_id, group in df.groupby('user_session_id'):
