@@ -122,7 +122,7 @@ node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
 
 # 🎯 Sankey 그리기
 fig = go.Figure(data=[go.Sankey(
-    arrangement="fixed"  # 좌표강제적용 (세션시작 고정)
+    arrangement="fixed",  # 좌표강제적용 (세션시작 고정)
     node=dict(
         pad=15,
         thickness=20,
