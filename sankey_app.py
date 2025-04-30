@@ -98,12 +98,15 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
 pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
 
-# 세션수 5 이상만 
-pairs_agg = pairs_agg[pairs_agg['value'] >= 5]
+# 🔧 '세션 시작'은 무조건 포함하고, 나머지는 value ≥ 5
+keep_start = pairs_agg[pairs_agg['source'] == '세션 시작']
+keep_rest = pairs_agg[(pairs_agg['source'] != '세션 시작') & (pairs_agg['value'] >= 5)]
+pairs_agg = pd.concat([keep_start, keep_rest], ignore_index=True)
 
-# 구매완료 세션만 필터링
-sessions_with_order = df[df['page'].str.contains('주문완료')]['user_session_id'].unique()
-df = df[df['user_session_id'].isin(sessions_with_order)]
+# ✅ '세션 시작'에서 출발하는 노드만 기준으로 전체 흐름 필터링
+valid_targets_from_start = pairs_agg[pairs_agg['source'] == '세션 시작']['target'].unique()
+valid_sources = set(valid_targets_from_start) | {'세션 시작'}
+pairs_agg = pairs_agg[pairs_agg['source'].isin(valid_sources)]
 
 # 1. ✅ 노드 매핑
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
