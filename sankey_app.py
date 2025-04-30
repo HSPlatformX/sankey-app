@@ -85,6 +85,25 @@ def truncate_after_purchase(df):
 # df에 적용
 df = truncate_after_purchase(df)
 
+# ✅ 주문완료 이후 단계가 남아있는 세션 확인용 디버깅 코드
+after_purchase_rows = []
+
+for session_id, group in df.groupby('user_session_id'):
+    group_sorted = group.sort_values('step')
+    found_purchase = False
+    for row in group_sorted.itertuples():
+        if found_purchase:
+            after_purchase_rows.append(row)
+        if str(row.page).strip() == '주문완료':  # 반드시 strip해서 비교
+            found_purchase = True
+
+# 결과 출력
+if after_purchase_rows:
+    st.markdown("### ❗ 주문완료 이후 단계가 여전히 존재하는 세션:")
+    st.dataframe(pd.DataFrame(after_purchase_rows))
+else:
+    st.success("✅ truncate 이후 '주문완료' 다음 단계는 완전히 제거됨")
+
 
 # 마지막 step이 '주문완료'인 세션만 유지
 last_steps = df.sort_values(['user_session_id', 'step']).groupby('user_session_id').tail(1)
