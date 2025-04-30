@@ -107,18 +107,19 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
 pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
 
-# 🔧 '세션 시작'은 무조건 포함하고, 나머지는 value ≥ 5
-keep_start = pairs_agg[pairs_agg['source'] == '세션 시작']
-keep_rest = pairs_agg[(pairs_agg['source'] != '세션 시작') & (pairs_agg['value'] >= 5)]
-pairs_agg = pd.concat([keep_start, keep_rest], ignore_index=True)
+# ✅ '세션 시작' 중 value ≥ 5인 것만 seed로 사용
+seed_nodes = pairs_agg[
+    (pairs_agg['source'] == '세션 시작') & (pairs_agg['value'] >= 5)
+]['target'].unique()
 
-# ✅ '세션 시작'에서 파생된 모든 연속 흐름만 추적 (BFS 방식)
-valid_nodes = set(pairs_agg[pairs_agg['source'] == '세션 시작']['target'].unique()) | {'세션 시작'}
+
+# ✅ BFS 확장 (유효한 흐름만 따라가며 확장)
+valid_nodes = set(seed_nodes) | {'세션 시작'}
 expanded = True
 while expanded:
     current_size = len(valid_nodes)
-    next_nodes = pairs_agg[pairs_agg['source'].isin(valid_nodes)]['target'].unique()
-    valid_nodes.update(next_nodes)
+    next_targets = pairs_agg[pairs_agg['source'].isin(valid_nodes)]['target'].unique()
+    valid_nodes.update(next_targets)
     expanded = len(valid_nodes) > current_size
 
 # ✅ 최종 필터링 적용
