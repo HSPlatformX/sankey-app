@@ -102,25 +102,29 @@ for session_id, group in df.groupby('user_session_id'):
         pairs.append((pages[i], pages[i + 1]))
 
         
-# ✅ 빈도수 집계        
+# ✅ 빈도수 집계
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
 pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
-
-# ✅ '세션 시작' 중 value ≥ 5인 것만 seed로 사용
-seed_nodes = pairs_agg[
+# ✅ 초기 조건: 세션 시작 → X 중 value ≥ 5인 대상 노드만 seed로 사용
+seed_edges = pairs_agg[
     (pairs_agg['source'] == '세션 시작') & (pairs_agg['value'] >= 5)
-]['target'].unique()
+]
 
+# 예외 처리: seed_edges가 비어있으면 바로 중단
+if seed_edges.empty:
+    st.warning("⚠️ '세션 시작'에서 시작하는 value ≥ 5 흐름이 없습니다. 데이터 조건을 확인하세요.")
+    st.stop()
 
-# ✅ BFS 확장 (유효한 흐름만 따라가며 확장)
+# ✅ Seed 노드 초기화
+seed_targets = seed_edges['target'].unique()
 valid_nodes = set(seed_targets) | {'세션 시작'}
 visited_edges = set()
-expanded = True
 
+# ✅ 확장: value ≥ 5인 edge만 따라가며 valid 노드 확장
+expanded = True
 while expanded:
     current_size = len(valid_nodes)
-    # value ≥ 5인 edge만 따라가기
     valid_edges = pairs_agg[
         (pairs_agg['source'].isin(valid_nodes)) &
         (pairs_agg['value'] >= 5)
@@ -132,11 +136,9 @@ while expanded:
 
     expanded = len(valid_nodes) > current_size
 
-
-# ✅ 최종 필터링 적용
+# ✅ 최종적으로 value ≥ 5인 유효 흐름만 필터링
 pairs_agg = pairs_agg[
-    pairs_agg['source'].isin(valid_nodes) &
-    pairs_agg['target'].isin(valid_nodes)
+    pairs_agg.apply(lambda row: (row['source'], row['target']) in visited_edges, axis=1)
 ]
 
 # 1. ✅ 노드 매핑
@@ -171,7 +173,8 @@ for session_id, group in df.groupby('user_session_id'):
 max_depth = max(depth_map.values()) if depth_map else 1
 node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
 
-
+st.markdown("### ✅ 최종 포함된 연결 수")
+st.write(len(pairs_agg))
 
 # 🎯 Sankey 그리기
 fig = go.Figure(data=[go.Sankey(
