@@ -117,6 +117,12 @@ pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
 # 세션수 5 이상만 
 pairs_agg = pairs_agg[pairs_agg['value'] >= 5]
+# 세션시작에서 끊기면 제외 
+valid_step1_nodes = pairs_agg[pairs_agg['source'] == '세션 시작']['target'].unique()
+pairs_agg = pairs_agg[
+    (pairs_agg['source'].isin(valid_step1_nodes) | (pairs_agg['source'] == '세션 시작')) &
+    (pairs_agg['target'].isin(valid_step1_nodes) | (pairs_agg['source'] == '세션 시작'))
+]
 
 # 1. ✅ 노드 매핑
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
@@ -125,7 +131,6 @@ node_map = {name: i for i, name in enumerate(all_nodes)}
 # 2. ✅ source/target 인덱스 매핑
 pairs_agg['source_id'] = pairs_agg['source'].map(node_map)
 pairs_agg['target_id'] = pairs_agg['target'].map(node_map)
-
 
 # 3. ✅ node.x 수동 지정 (단계별로 좌표 계산)
 # 단계 숫자 추출 (정규식 기반)
