@@ -159,6 +159,14 @@ for session_id, group in df.groupby('user_session_id'):
 max_depth = max(depth_map.values()) if depth_map else 1
 node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
 
+# 👉 최종 연결 집계표 확인
+st.markdown("### ✅ Sankey 연결 데이터 샘플 (pairs_agg)")
+st.dataframe(pairs_agg.head(30))
+
+# 👉 주문완료가 target으로 포함된 노드들만 확인
+st.markdown("### ✅ 주문완료로 끝나는 연결만 필터링")
+st.dataframe(pairs_agg[pairs_agg['target'].str.contains('주문완료')])
+
 
 # 🎯 Sankey 그리기
 fig = go.Figure(data=[go.Sankey(
