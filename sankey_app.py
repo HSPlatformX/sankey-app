@@ -88,23 +88,33 @@ valid_sessions = last_steps[last_steps['page'] == '주문완료']['user_session_
 df = df[df['user_session_id'].isin(valid_sessions)]
 df['step'] = df.groupby('user_session_id').cumcount() + 1 # 다시 step 재정의: truncate 후 step이 연속되도록 보장
 
-# 🛠️ 세션별 흐름 연결
-pairs = []
+# ✅ 세션 단위 흐름 리스트로 정렬
+df_sorted = df.sort_values(['user_session_id', 'step'])
+session_paths = df_sorted.groupby('user_session_id')['page'].apply(list).reset_index()
 
-for session_id, group in df.groupby('user_session_id'):
-    sorted_rows = group.sort_values('step')[['page', 'step']]
-    pages = [f"{row.page} ({row.step}단계)" for row in sorted_rows.itertuples()]
-    
-    if pages:
-        pairs.append(("세션 시작", pages[0]))  # 시작 노드 추가
-    
-    for i in range(len(pages) - 1):
-        pairs.append((pages[i], pages[i + 1]))
+# ✅ 주문완료로 끝나는 세션만 유지
+session_paths = session_paths[session_paths['page'].apply(lambda x: x[-1] == '주문완료')]
+
+# ✅ 경로 문자열화 → 빈도수 집계
+session_paths['path_str'] = session_paths['page'].apply(lambda x: ' > '.join(x))
+path_counts = session_paths['path_str'].value_counts().reset_index()
+path_counts.columns = ['path', 'value']
+
+# 🛠️ 세션별 흐름 연결
+
+pairs = []
+for _, row in path_counts.iterrows():
+    steps = row['path'].split(' > ')
+    for i in range(len(steps) - 1):
+        source = f"{steps[i]} ({i+1}단계)" if i > 0 else "세션 시작"
+        target = f"{steps[i+1]} ({i+2}단계)"
+        pairs.append((source, target, row['value']))
 
         
 # ✅ 빈도수 집계
-pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
-pairs_agg = pairs_df.value_counts().reset_index(name='value')
+pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
+pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
+
 
 # ✅ 초기 조건: 세션 시작 → X 중 value ≥ 5인 대상 노드만 seed로 사용
 seed_edges = pairs_agg[
