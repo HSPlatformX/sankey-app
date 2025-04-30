@@ -122,6 +122,7 @@ node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
 
 # 🎯 Sankey 그리기
 fig = go.Figure(data=[go.Sankey(
+    arrangement="fixed"  # 좌표강제적용 (세션시작 고정)
     node=dict(
         pad=15,
         thickness=20,
@@ -138,10 +139,7 @@ fig = go.Figure(data=[go.Sankey(
 fig.update_layout(
     title_text=f"세션 기반 Sankey for `{selected_category}`",
     font_size=10,
-    margin=dict(l=0, r=0, t=40, b=0),
-    sankey=dict(
-        arrangement="fixed"  # 좌표강제적용 (세션시작 고정)
-    )
+    margin=dict(l=0, r=0, t=40, b=0)
 )
 
 # Streamlit에 그래프 출력
