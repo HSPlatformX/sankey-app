@@ -87,18 +87,22 @@ df = client.query(query, job_config=job_config).to_dataframe()
 pairs = []
 for session_id, group in df.groupby('user_session_id'):
     pages = group.sort_values('step')['page'].tolist()
-    for i in range(len(pages) - 1):
-        pairs.append((pages[i], pages[i + 1]))
-
+    if len(sorted_pages) >= 1:
+        pairs.append(("세션 시작", sorted_pages[0]))  # ✅ 세션 시작점 표시
+    for i in range(len(sorted_pages) - 1):
+        pairs.append((sorted_pages[i], sorted_pages[i + 1]))
+        
+# ✅ 빈도수 집계        
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
 pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
-# 🎯 Sankey 그리기
+# ✅ 노드 매핑
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
 node_map = {name: i for i, name in enumerate(all_nodes)}
 pairs_agg['source_id'] = pairs_agg['source'].map(node_map)
 pairs_agg['target_id'] = pairs_agg['target'].map(node_map)
 
+# 🎯 Sankey 그리기
 fig = go.Figure(data=[go.Sankey(
     node=dict(
         pad=15,
