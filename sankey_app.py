@@ -135,7 +135,14 @@ fig = go.Figure(data=[go.Sankey(
         value=pairs_agg['value']
     )
 )])
-fig.update_layout(title_text=f"세션 기반 Sankey for `{selected_category}`", font_size=10)
+fig.update_layout(
+    title_text=f"세션 기반 Sankey for `{selected_category}`",
+    font_size=10,
+    margin=dict(l=0, r=0, t=40, b=0),
+    sankey=dict(
+        arrangement="fixed"  # 좌표강제적용 (세션시작 고정)
+    )
+)
 
 # Streamlit에 그래프 출력
 st.plotly_chart(fig, use_container_width=True)
