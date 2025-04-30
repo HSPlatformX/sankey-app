@@ -82,15 +82,17 @@ def truncate_after_purchase(df):
 df = truncate_after_purchase(df)
 
 
-# 🔐 truncate 이후에도 '주문완료'가 포함된 세션만 유지 (안전 필터링)
-sessions_with_purchase = df[df['page'] == '주문완료']['user_session_id'].unique()
-df = df[df['user_session_id'].isin(sessions_with_purchase)]
+# 🔐 주문완료 포함된 세션만 한 번 더 강제 필터링 (source-target 생성 전에!)
+valid_sessions = df[df['page'] == '주문완료']['user_session_id'].unique()
+df = df[df['user_session_id'].isin(valid_sessions)]
 
 
 # 🛠️ 세션별 흐름 연결
 pairs = []
 
 for session_id, group in df.groupby('user_session_id'):
+    if '주문완료' not in group['page'].values:
+        continue  # 주문완료 없는 세션은 건너뜀
     sorted_rows = group.sort_values('step')[['page', 'step']]
     pages = [f"{row.page} ({row.step}단계)" for row in sorted_rows.itertuples()]
     
