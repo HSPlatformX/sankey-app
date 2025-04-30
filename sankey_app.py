@@ -59,8 +59,12 @@ job_config = bigquery.QueryJobConfig(
 df = client.query(query, job_config=job_config).to_dataframe()
 df = df.dropna(subset=['user_session_id', 'step', 'page']) # ✅ 안정화: 필수 컬럼에 null 있으면 제거
 
+# ✅ 세션 시작 + 주문완료 포함된 세션만 유지
 sessions_with_order = df[df['page'].str.contains('주문완료')]['user_session_id'].unique()
-df = df[df['user_session_id'].isin(sessions_with_order)]
+sessions_with_start = df[df['step'] == 1]['user_session_id'].unique()
+valid_sessions = list(set(sessions_with_order) & set(sessions_with_start))
+
+df = df[df['user_session_id'].isin(valid_sessions)]
 
 # 🔧 구매완료 이후 단계는 제거하는 함수
 def truncate_after_purchase(df):
