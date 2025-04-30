@@ -59,12 +59,10 @@ job_config = bigquery.QueryJobConfig(
 df = client.query(query, job_config=job_config).to_dataframe()
 df = df.dropna(subset=['user_session_id', 'step', 'page']) # ✅ 안정화: 필수 컬럼에 null 있으면 제거
 
-# ✅ 세션 시작 + 주문완료 포함된 세션만 유지
-sessions_with_order = df[df['page'].str.contains('주문완료')]['user_session_id'].unique()
-sessions_with_start = df[df['step'] == 1]['user_session_id'].unique()
-valid_sessions = list(set(sessions_with_order) & set(sessions_with_start))
+# 🔧 step=1이 존재하는 세션만 남긴다 (세션 시작 노드 구성 가능하도록)
+sessions_with_step1 = df[df['step'] == 1]['user_session_id'].unique()
+df = df[df['user_session_id'].isin(sessions_with_step1)]
 
-df = df[df['user_session_id'].isin(valid_sessions)]
 
 # 🔧 구매완료 이후 단계는 제거하는 함수
 def truncate_after_purchase(df):
@@ -99,9 +97,6 @@ for session_id, group in df.groupby('user_session_id'):
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
 pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
-# 🔍 여기 결과 확인!
-st.markdown("### ✅ 세션 시작 흐름 확인")
-st.dataframe(pairs_agg[pairs_agg['source'] == '세션 시작'])
 
 # 세션수 5 이상만 
 pairs_agg = pairs_agg[pairs_agg['value'] >= 5]
