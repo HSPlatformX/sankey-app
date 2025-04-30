@@ -58,6 +58,10 @@ job_config = bigquery.QueryJobConfig(
 
 df = client.query(query, job_config=job_config).to_dataframe()
 df = df.dropna(subset=['user_session_id', 'step', 'page']) # ✅ 안정화: 필수 컬럼에 null 있으면 제거
+
+sessions_with_order = df[df['page'].str.contains('주문완료')]['user_session_id'].unique()
+df = df[df['user_session_id'].isin(sessions_with_order)]
+
 # 🔧 구매완료 이후 단계는 제거하는 함수
 def truncate_after_purchase(df):
     trimmed_rows = []
@@ -94,11 +98,9 @@ pairs_agg = pairs_df.value_counts().reset_index(name='value')
 # 세션수 5 이상만 
 pairs_agg = pairs_agg[pairs_agg['value'] >= 5]
 
-# 세션 시작 기반 흐름만 유지
-valid_sources = pairs_agg[pairs_agg['source'] == '세션 시작']['target'].unique()
-pairs_agg = pairs_agg[
-    (pairs_agg['source'].isin(valid_sources) | (pairs_agg['source'] == '세션 시작'))
-]
+# 구매완료 세션만 필터링
+sessions_with_order = df[df['page'].str.contains('주문완료')]['user_session_id'].unique()
+df = df[df['user_session_id'].isin(sessions_with_order)]
 
 # 1. ✅ 노드 매핑
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
