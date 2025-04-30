@@ -73,30 +73,6 @@ def truncate_after_purchase(df):
 df = truncate_after_purchase(df)
 
 
-# # 노드 인덱스 맵핑
-# all_nodes = pd.unique(df[['source', 'target']].values.ravel())
-# node_map = {name: i for i, name in enumerate(all_nodes)}
-# df['source_id'] = df['source'].map(node_map)
-# df['target_id'] = df['target'].map(node_map)
-
-# # Sankey 다이어그램 그리기
-# fig = go.Figure(data=[go.Sankey(
-#     node=dict(
-#         pad=15,
-#         thickness=20,
-#         label=list(node_map.keys()),
-#         line=dict(color="black", width=0.5)
-#     ),
-#     link=dict(
-#         source=df['source_id'],
-#         target=df['target_id'],
-#         value=df['value']
-#     )
-# )])
-
-# fig.update_layout(title_text=f"Sankey for `{selected_category}`", font_size=11)
-
-
 # 🛠️ 세션별 흐름 연결
 pairs = []
 
@@ -117,11 +93,11 @@ pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
 # 세션수 5 이상만 
 pairs_agg = pairs_agg[pairs_agg['value'] >= 5]
-# 세션시작에서 끊기면 제외 
-valid_step1_nodes = pairs_agg[pairs_agg['source'] == '세션 시작']['target'].unique()
+
+# 세션 시작 기반 흐름만 유지
+valid_sources = pairs_agg[pairs_agg['source'] == '세션 시작']['target'].unique()
 pairs_agg = pairs_agg[
-    (pairs_agg['source'].isin(valid_step1_nodes) | (pairs_agg['source'] == '세션 시작')) &
-    (pairs_agg['target'].isin(valid_step1_nodes) | (pairs_agg['source'] == '세션 시작'))
+    (pairs_agg['source'].isin(valid_sources) | (pairs_agg['source'] == '세션 시작'))
 ]
 
 # 1. ✅ 노드 매핑
