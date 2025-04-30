@@ -86,7 +86,7 @@ df = truncate_after_purchase(df)
 last_steps = df.sort_values(['user_session_id', 'step']).groupby('user_session_id').tail(1)
 valid_sessions = last_steps[last_steps['page'] == '주문완료']['user_session_id'].unique()
 df = df[df['user_session_id'].isin(valid_sessions)]
-
+df['step'] = df.groupby('user_session_id').cumcount() + 1 # 다시 step 재정의: truncate 후 step이 연속되도록 보장
 
 # 🛠️ 세션별 흐름 연결
 pairs = []
@@ -159,13 +159,6 @@ for session_id, group in df.groupby('user_session_id'):
 max_depth = max(depth_map.values()) if depth_map else 1
 node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
 
-# 👉 최종 연결 집계표 확인
-st.markdown("### ✅ Sankey 연결 데이터 샘플 (pairs_agg)")
-st.dataframe(pairs_agg.head(30))
-
-# 👉 주문완료가 target으로 포함된 노드들만 확인
-st.markdown("### ✅ 주문완료로 끝나는 연결만 필터링")
-st.dataframe(pairs_agg[pairs_agg['target'].str.contains('주문완료')])
 
 
 # 🎯 Sankey 그리기
