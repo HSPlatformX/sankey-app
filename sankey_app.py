@@ -115,8 +115,8 @@ for session_id, group in df.groupby('user_session_id'):
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
 pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
-# 세션수 10 이상만 
-pairs_agg = pairs_agg[pairs_agg['value'] >= 10]
+# 세션수 5 이상만 
+pairs_agg = pairs_agg[pairs_agg['value'] >= 5]
 
 # 1. ✅ 노드 매핑
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
