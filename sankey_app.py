@@ -99,6 +99,10 @@ for session_id, group in df.groupby('user_session_id'):
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target'])
 pairs_agg = pairs_df.value_counts().reset_index(name='value')
 
+# 🔍 여기 결과 확인!
+st.markdown("### ✅ 세션 시작 흐름 확인")
+st.dataframe(pairs_agg[pairs_agg['source'] == '세션 시작'])
+
 # 세션수 5 이상만 
 pairs_agg = pairs_agg[pairs_agg['value'] >= 5]
 
