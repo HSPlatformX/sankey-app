@@ -82,24 +82,32 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # ✅ value ≥ 5 기준 BFS 필터링
-seed_edges = pairs_agg[(pairs_agg['source'] == '세션 시작') & (pairs_agg['value'] >= 5)]
-if seed_edges.empty:
-    st.warning("⚠️ 시작 노드가 부족합니다.")
-    st.stop()
-seed_targets = seed_edges['target'].unique()
-valid_nodes = set(seed_targets) | {'세션 시작'}
+EXCEPTION_SUFFIXES = ['주문완료', '청약완료']
+
+def is_exception_node(node):
+    return any(node.endswith(suffix + f")") for suffix in EXCEPTION_SUFFIXES)
+
+# 초기 세팅
+seed_edges = pairs_agg[pairs_agg['source'] == '세션 시작']
+valid_nodes = set(seed_edges['target']) | {'세션 시작'}
 visited_edges = set()
+
 expanded = True
 while expanded:
     current_size = len(valid_nodes)
     valid_edges = pairs_agg[
         (pairs_agg['source'].isin(valid_nodes)) &
-        (pairs_agg['value'] >= 5)
+        (
+            (pairs_agg['value'] >= 5) |
+            (pairs_agg['target'].apply(is_exception_node))
+        )
     ]
     for _, row in valid_edges.iterrows():
         visited_edges.add((row['source'], row['target']))
         valid_nodes.add(row['target'])
     expanded = len(valid_nodes) > current_size
+
+# 최종 필터링
 pairs_agg = pairs_agg[
     pairs_agg.apply(lambda row: (row['source'], row['target']) in visited_edges, axis=1)
 ]
