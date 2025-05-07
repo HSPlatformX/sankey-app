@@ -56,7 +56,7 @@ df = df.sort_values(['user_session_id', 'step'])
 df['step'] = df.groupby('user_session_id').cumcount() + 1
 
 last_pages = df.groupby('user_session_id').tail(1)
-print(last_pages['page'].value_counts())
+st.write(last_pages['page'].value_counts())
 
 # ✅ 세션별 page 리스트로 경로 생성
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
