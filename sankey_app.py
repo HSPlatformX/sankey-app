@@ -45,15 +45,18 @@ job_config = bigquery.QueryJobConfig(
 )
 df = client.query(query, job_config=job_config).to_dataframe()
 df = df.dropna(subset=['user_session_id', 'step', 'page'])
-df['page'] = df['page'].astype(str).str.strip()
+df['page'] = df['page'].astype(str).str.strip().str.replace(r'\s+', '', regex=True)
 
 # ✅ 세션 시작 노드 조건
 sessions_with_step1 = df[df['step'] == 1]['user_session_id'].unique()
 df = df[df['user_session_id'].isin(sessions_with_step1)]
 
 
-df = df.sort_values(['user_session_id', 'step'])  # step이 쿼리 결과에 없으면 event_time 사용
+df = df.sort_values(['user_session_id', 'event_time'])  # step이 쿼리 결과에 없으면 event_time 사용
 df['step'] = df.groupby('user_session_id').cumcount() + 1
+
+last_pages = df.groupby('user_session_id').tail(1)
+print(last_pages['page'].value_counts())
 
 # ✅ 세션별 page 리스트로 경로 생성
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
