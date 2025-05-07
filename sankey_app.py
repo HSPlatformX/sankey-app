@@ -155,6 +155,7 @@ seed_edges = pairs_agg[
 
 valid_nodes = set(seed_edges['target']) | {'세션 시작'}
 visited_edges = set()
+exception_nodes = set(terminal_nodes_with_step)  # ✅ 주문/청약완료 포함 노드셋
 
 expanded = True
 while expanded:
@@ -164,10 +165,8 @@ while expanded:
         (pairs_agg['source'].isin(valid_nodes)) &
         (
             (pairs_agg['value'] >= 5) |
-            (
-                pairs_agg['target'].isin(terminal_nodes_with_step) &
-                pairs_agg['target'].apply(lambda x: is_terminal_exception(x))
-            )
+            (pairs_agg['target'].isin(exception_nodes)) |
+            (pairs_agg['source'].isin(exception_nodes))
         )
     ]
 
@@ -181,6 +180,7 @@ while expanded:
 pairs_agg = pairs_agg[
     pairs_agg.apply(lambda row: (row['source'], row['target']) in visited_edges, axis=1)
 ]
+
 
 # --- -------------------------------------------------------------------------------------------------------------------------------------------
 
