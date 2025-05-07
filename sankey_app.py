@@ -52,7 +52,7 @@ sessions_with_step1 = df[df['step'] == 1]['user_session_id'].unique()
 df = df[df['user_session_id'].isin(sessions_with_step1)]
 
 
-df = df.sort_values(['user_session_id', 'event_time'])  # step이 쿼리 결과에 없으면 event_time 사용
+df = df.sort_values(['user_session_id', 'step']) 
 df['step'] = df.groupby('user_session_id').cumcount() + 1
 
 last_pages = df.groupby('user_session_id').tail(1)
