@@ -97,19 +97,46 @@ def is_terminal_exception(node):
     base = get_base_node_name(node)
     return base in ['주문완료', '청약완료']
 
+# --- 0. 페이지 클렌징 ---
+df['page'] = df['page'].astype(str).str.strip().str.replace(r'\s+', '', regex=True)
+
 # --- 1. 세션 종료가 주문완료 또는 청약완료인 경우만 유지 ---
 last_pages = df.groupby('user_session_id').tail(1)
 valid_sessions = last_pages[last_pages['page'].isin(['주문완료', '청약완료'])]['user_session_id'].unique()
-df = df[df['user_session_id'].isin(valid_sessions)]
+df = df[df['user_session_id'].isin(valid_sessions)].copy()
 
-# --- 2. 단계 이름 정리 후 Sankey용 pair 생성 (이후 pairs_agg 생성됨)
-# 이 스크립트는 pairs_agg 이후에 실행되어야 합니다
+# --- 2. step 재계산 및 경로 생성 ---
+df = df.sort_values(['user_session_id', 'step'])
+df['step'] = df.groupby('user_session_id').cumcount() + 1
 
-# --- 종료 노드: 실제 df 기준 종료 노드 구함 ---
+session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
+session_paths['path_str'] = session_paths['page'].apply(lambda x: ' > '.join(x))
+path_counts = session_paths['path_str'].value_counts().reset_index()
+path_counts.columns = ['path', 'value']
+
+# --- 3. pair 생성 ---
+def path_to_pairs(path_str, value):
+    steps = path_str.split(' > ')
+    pairs = []
+    for i in range(len(steps) - 1):
+        source = f"{steps[i]} ({i+1}단계)" if i > 0 else "세션 시작"
+        target = f"{steps[i+1]} ({i+2}단계)"
+        pairs.append((source, target, value))
+    return pairs
+
+pairs = []
+for _, row in path_counts.iterrows():
+    pairs.extend(path_to_pairs(row['path'], row['value']))
+
+import pandas as pd
+pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
+pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
+
+# --- 4. 종료 노드: 실제 df 기준 종료 노드 구함 ---
 last_pages = df.groupby('user_session_id').tail(1)
 terminal_nodes_with_step = [f"{page} ({step}단계)" for page, step in zip(last_pages['page'], last_pages['step'])]
 
-# --- BFS 필터링 with 예외 허용 ---
+# --- 5. BFS 필터링 with 예외 허용 ---
 seed_edges = pairs_agg[pairs_agg['source'] == '세션 시작']
 valid_nodes = set(seed_edges['target']) | {'세션 시작'}
 visited_edges = set()
@@ -135,13 +162,10 @@ while expanded:
 
     expanded = len(valid_nodes) > current_size
 
-# --- 최종 필터링 적용 ---
+# --- 6. 최종 필터링 적용 ---
 pairs_agg = pairs_agg[
     pairs_agg.apply(lambda row: (row['source'], row['target']) in visited_edges, axis=1)
 ]
-
-
-
 
 
 
