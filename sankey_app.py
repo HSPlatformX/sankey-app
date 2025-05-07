@@ -137,9 +137,7 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # --- 4. 종료 노드: 실제 df 기준 종료 노드 구함 ---
-last_pages = df.groupby('user_session_id').tail(1)
-last_pages = last_pages[last_pages['page'].isin(['주문완료', '청약완료'])]  # ✅ 예외 노드만 유지
-terminal_nodes_with_step = [f"{page} ({step}단계)" for page, step in zip(last_pages['page'], last_pages['step'])]
+# (불필요한 terminal_nodes_with_step 제거됨)
 
 # --- 5. BFS 필터링 with 예외 허용 ---
 # 시작 노드가 기획전상세, 마이페이지인 경우 제거
@@ -155,7 +153,13 @@ seed_edges = pairs_agg[
 
 valid_nodes = set(seed_edges['target']) | {'세션 시작'}
 visited_edges = set()
-exception_nodes = set(terminal_nodes_with_step)  # ✅ 주문/청약완료 포함 노드셋
+exception_pages = ['주문완료', '청약완료']  # ✅ page 기준 예외 처리
+
+def is_exception_edge(row):
+    return (
+        get_base_node_name(row['source']) in exception_pages or
+        get_base_node_name(row['target']) in exception_pages
+    )
 
 expanded = True
 while expanded:
@@ -165,8 +169,7 @@ while expanded:
         (pairs_agg['source'].isin(valid_nodes)) &
         (
             (pairs_agg['value'] >= 5) |
-            (pairs_agg['target'].isin(exception_nodes)) |
-            (pairs_agg['source'].isin(exception_nodes))
+            pairs_agg.apply(is_exception_edge, axis=1)
         )
     ]
 
