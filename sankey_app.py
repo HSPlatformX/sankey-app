@@ -51,17 +51,8 @@ df['page'] = df['page'].astype(str).str.strip()
 sessions_with_step1 = df[df['step'] == 1]['user_session_id'].unique()
 df = df[df['user_session_id'].isin(sessions_with_step1)]
 
-# ✅ 주문완료 포함 여부 기준 세션 분리
-raw_df = df.copy()
-sessions_with_order = raw_df[raw_df['page'] == '주문완료']['user_session_id'].unique()
-df_complete = raw_df[raw_df['user_session_id'].isin(sessions_with_order)]
-df_incomplete = raw_df[~raw_df['user_session_id'].isin(sessions_with_order)]
 
-
-# ✅ 세션 처리
-df_incomplete = df_incomplete[df_incomplete['step'] <= 2]
-df = pd.concat([df_complete, df_incomplete])
-df = df.sort_values(['user_session_id', 'step'])
+df = df.sort_values(['user_session_id', 'step'])  # step이 쿼리 결과에 없으면 event_time 사용
 df['step'] = df.groupby('user_session_id').cumcount() + 1
 
 # ✅ 세션별 page 리스트로 경로 생성
