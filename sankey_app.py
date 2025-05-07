@@ -83,7 +83,9 @@ pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # ✅ value ≥ 5 기준 BFS 필터링
 
-# ✅ Sankey 필터링 개선 버전 (예외 노드: 주문완료, 청약완료 유지)
+
+
+
 
 # --- 함수 정의 ---
 def get_base_node_name(label):
@@ -95,9 +97,16 @@ def is_terminal_exception(node):
     base = get_base_node_name(node)
     return base in ['주문완료', '청약완료']
 
-# --- 진짜 종료 노드 추출: df 기준 각 세션 마지막 페이지 ---
+# --- 1. 세션 종료가 주문완료 또는 청약완료인 경우만 유지 ---
 last_pages = df.groupby('user_session_id').tail(1)
-terminal_nodes_raw = last_pages['page'].unique()
+valid_sessions = last_pages[last_pages['page'].isin(['주문완료', '청약완료'])]['user_session_id'].unique()
+df = df[df['user_session_id'].isin(valid_sessions)]
+
+# --- 2. 단계 이름 정리 후 Sankey용 pair 생성 (이후 pairs_agg 생성됨)
+# 이 스크립트는 pairs_agg 이후에 실행되어야 합니다
+
+# --- 종료 노드: 실제 df 기준 종료 노드 구함 ---
+last_pages = df.groupby('user_session_id').tail(1)
 terminal_nodes_with_step = [f"{page} ({step}단계)" for page, step in zip(last_pages['page'], last_pages['step'])]
 
 # --- BFS 필터링 with 예외 허용 ---
