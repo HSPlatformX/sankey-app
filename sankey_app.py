@@ -57,20 +57,8 @@ sessions_with_order = raw_df[raw_df['page'] == '주문완료']['user_session_id'
 df_complete = raw_df[raw_df['user_session_id'].isin(sessions_with_order)]
 df_incomplete = raw_df[~raw_df['user_session_id'].isin(sessions_with_order)]
 
-# ✅ 주문완료 이후 단계 제거 함수
-# def truncate_after_purchase(df):
-#     trimmed_rows = []
-#     for session_id, group in df.groupby('user_session_id'):
-#         group_sorted = group.sort_values('step')
-#         for i, row in enumerate(group_sorted.itertuples()):
-#             if str(row.page).strip() == '주문완료':
-#                 trimmed = group_sorted.iloc[:i+1]
-#                 trimmed_rows.append(trimmed)
-#                 break
-#     return pd.concat(trimmed_rows).drop_duplicates().reset_index(drop=True)
 
 # ✅ 세션 처리
-df_complete = truncate_after_purchase(df_complete)
 df_incomplete = df_incomplete[df_incomplete['step'] <= 2]
 df = pd.concat([df_complete, df_incomplete])
 df = df.sort_values(['user_session_id', 'step'])
