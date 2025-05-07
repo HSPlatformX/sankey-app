@@ -152,7 +152,7 @@ seed_edges = pairs_agg[
     (pairs_agg['source'] == '세션 시작') &
     (pairs_agg['target'].apply(is_valid_start))
 ]
-seed_edges = pairs_agg[pairs_agg['source'] == '세션 시작']
+
 valid_nodes = set(seed_edges['target']) | {'세션 시작'}
 visited_edges = set()
 
