@@ -84,7 +84,7 @@ pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 # ✅ value ≥ 5 기준 BFS 필터링
 
 def get_base_node_name(label):
-    return re.sub(r'\s*\(\d+\uB2E8\uACC4\)', '', label)  # 단계 제거
+    return re.sub(r'\s*\(\d+단계\)', '', label)  # 단계 제거
 
 def is_terminal_exception(node):
     base = get_base_node_name(node)
@@ -106,7 +106,10 @@ while expanded:
         (pairs_agg['source'].isin(valid_nodes)) &
         (
             (pairs_agg['value'] >= 5) |
-            (pairs_agg['target'].apply(is_exception_node))
+             (
+                pairs_agg['target'].isin(terminal_nodes) &
+                pairs_agg['target'].apply(lambda x: is_terminal_exception(x))
+            )
         )
     ]
     for _, row in valid_edges.iterrows():
