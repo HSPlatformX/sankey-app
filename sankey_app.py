@@ -84,15 +84,20 @@ pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 # ✅ value ≥ 5 기준 BFS 필터링
 
 def get_base_node_name(label):
-    return re.sub(r'\s*\(\d+단계\)', '', label)
+    return re.sub(r'\s*\(\d+\uB2E8\uACC4\)', '', label)  # 단계 제거
 
-def is_exception_node(node):
-    return get_base_node_name(node) in ['주문완료', '청약완료']
+def is_terminal_exception(node):
+    base = get_base_node_name(node)
+    return base in ['주문완료', '청약완료']
     
-# 초기 세팅
+# --- 종료 노드 목록 확보 (outgoing flow 없는 노드) ---
+terminal_nodes = pairs_agg[~pairs_agg['source'].isin(pairs_agg['target'])]['target'].unique()
+
+# --- BFS 필터링 with 예외 허용 ---
 seed_edges = pairs_agg[pairs_agg['source'] == '세션 시작']
 valid_nodes = set(seed_edges['target']) | {'세션 시작'}
 visited_edges = set()
+
 
 expanded = True
 while expanded:
