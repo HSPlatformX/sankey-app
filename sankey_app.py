@@ -82,11 +82,13 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # ✅ value ≥ 5 기준 BFS 필터링
-EXCEPTION_SUFFIXES = ['주문완료', '청약완료']
+
+def get_base_node_name(label):
+    return re.sub(r'\s*\(\d+단계\)', '', label)
 
 def is_exception_node(node):
-    return any(node.endswith(suffix + f")") for suffix in EXCEPTION_SUFFIXES)
-
+    return get_base_node_name(node) in ['주문완료', '청약완료']
+    
 # 초기 세팅
 seed_edges = pairs_agg[pairs_agg['source'] == '세션 시작']
 valid_nodes = set(seed_edges['target']) | {'세션 시작'}
