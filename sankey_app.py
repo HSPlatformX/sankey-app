@@ -142,6 +142,16 @@ last_pages = last_pages[last_pages['page'].isin(['주문완료', '청약완료']
 terminal_nodes_with_step = [f"{page} ({step}단계)" for page, step in zip(last_pages['page'], last_pages['step'])]
 
 # --- 5. BFS 필터링 with 예외 허용 ---
+# 시작 노드가 기획전상세, 마이페이지인 경우 제거
+
+def is_valid_start(target_label):
+    base = get_base_node_name(target_label)
+    return base not in ['기획전상세', '마이페이지']
+
+seed_edges = pairs_agg[
+    (pairs_agg['source'] == '세션 시작') &
+    (pairs_agg['target'].apply(is_valid_start))
+]
 seed_edges = pairs_agg[pairs_agg['source'] == '세션 시작']
 valid_nodes = set(seed_edges['target']) | {'세션 시작'}
 visited_edges = set()
@@ -171,6 +181,9 @@ while expanded:
 pairs_agg = pairs_agg[
     pairs_agg.apply(lambda row: (row['source'], row['target']) in visited_edges, axis=1)
 ]
+
+# --- -------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
