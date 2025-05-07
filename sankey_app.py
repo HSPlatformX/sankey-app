@@ -84,9 +84,6 @@ pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 # ✅ value ≥ 5 기준 BFS 필터링
 
 
-
-
-
 # --- 함수 정의 ---
 def get_base_node_name(label):
     return re.sub(r'\s*\(\d+단계\)', '', label)  # 단계 제거
@@ -105,8 +102,14 @@ last_pages = df.groupby('user_session_id').tail(1)
 valid_sessions = last_pages[last_pages['page'].isin(['주문완료', '청약완료'])]['user_session_id'].unique()
 df = df[df['user_session_id'].isin(valid_sessions)].copy()
 
+# --- 1.5 step 재계산을 위해 세션 내부 순서를 보장하는 인덱스를 생성 (강제 순서용)
+df = df.reset_index(drop=True)
+df['seq'] = df.groupby('user_session_id').cumcount()  # 강제로 순서 부여
+
 # --- 2. step 재계산 및 경로 생성 ---
-df = df.sort_values(['user_session_id', 'step'])
+df = df.sort_values(['user_session_id', 'seq'])  # seq 기준으로 정렬
+
+# 새롭게 step 부여
 df['step'] = df.groupby('user_session_id').cumcount() + 1
 
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
@@ -166,8 +169,6 @@ while expanded:
 pairs_agg = pairs_agg[
     pairs_agg.apply(lambda row: (row['source'], row['target']) in visited_edges, axis=1)
 ]
-
-
 
 
 # ✅ 노드 매핑 및 좌표 계산
