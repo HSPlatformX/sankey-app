@@ -147,6 +147,11 @@ pairs_df = pairs_df[
     ~pairs_df['target'].apply(is_excluded_node)
 ].reset_index(drop=True)
 
+# --- 3.6 세션 시작에서 불필요한 노드로 바로 가는 경우 제거 ---
+pairs_df = pairs_df[
+    ~((pairs_df['source'] == '세션 시작') & (pairs_df['target'].apply(is_excluded_node)))
+].reset_index(drop=True)
+
 # --- 4. 종료 노드: 실제 df 기준 종료 노드 구함 ---
 # (불필요한 terminal_nodes_with_step 제거됨)
 
