@@ -136,6 +136,17 @@ import pandas as pd
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
+
+# --- 3.5 불필요한 노드 사전 제거 ---
+def is_excluded_node(label):
+    base = get_base_node_name(label)
+    return base in ['기획전상세', '마이페이지']
+
+pairs_df = pairs_df[
+    ~pairs_df['source'].apply(is_excluded_node) &
+    ~pairs_df['target'].apply(is_excluded_node)
+].reset_index(drop=True)
+
 # --- 4. 종료 노드: 실제 df 기준 종료 노드 구함 ---
 # (불필요한 terminal_nodes_with_step 제거됨)
 
