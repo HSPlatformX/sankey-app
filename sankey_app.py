@@ -183,7 +183,7 @@ while expanded:
     valid_edges = pairs_agg[
         (pairs_agg['source'].isin(valid_nodes)) &
         (
-            (pairs_agg['value'] >= 5) |
+            (pairs_agg['value'] >= 10) |
             pairs_agg.apply(is_exception_edge, axis=1)
         )
     ]
