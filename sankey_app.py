@@ -119,6 +119,7 @@ path_counts = session_paths['path_str'].value_counts().reset_index()
 path_counts.columns = ['path', 'value']
 
 # --- 3. pair 생성 ---
+
 def path_to_pairs(path_str, value):
     steps = path_str.split(' > ')
     pairs = []
@@ -134,8 +135,6 @@ for _, row in path_counts.iterrows():
 
 import pandas as pd
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
-pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
-
 
 # --- 3.5 불필요한 노드 사전 제거 ---
 def is_excluded_node(label):
@@ -152,15 +151,15 @@ pairs_df = pairs_df[
     ~((pairs_df['source'] == '세션 시작') & (pairs_df['target'].apply(is_excluded_node)))
 ].reset_index(drop=True)
 
+pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
+
 # --- 4. 종료 노드: 실제 df 기준 종료 노드 구함 ---
 # (불필요한 terminal_nodes_with_step 제거됨)
 
 # --- 5. BFS 필터링 with 예외 허용 ---
-# 시작 노드가 기획전상세, 마이페이지인 경우 제거
 
 def is_valid_start(target_label):
-    base = get_base_node_name(target_label)
-    return base not in ['기획전상세', '마이페이지']
+    return True  # ✅ 모든 시작 노드를 허용하도록 변경
 
 seed_edges = pairs_agg[
     (pairs_agg['source'] == '세션 시작') &
