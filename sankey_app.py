@@ -84,6 +84,7 @@ pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 # ✅ value ≥ 5 기준 BFS 필터링
 
 
+# --- -----------------------------------------------------------------------------------------------------------------------------------------------
 # --- 함수 정의 ---
 def get_base_node_name(label):
     return re.sub(r'\s*\(\d+단계\)', '', label)  # 단계 제거
@@ -137,6 +138,7 @@ pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # --- 4. 종료 노드: 실제 df 기준 종료 노드 구함 ---
 last_pages = df.groupby('user_session_id').tail(1)
+last_pages = last_pages[last_pages['page'].isin(['주문완료', '청약완료'])]  # ✅ 예외 노드만 유지
 terminal_nodes_with_step = [f"{page} ({step}단계)" for page, step in zip(last_pages['page'], last_pages['step'])]
 
 # --- 5. BFS 필터링 with 예외 허용 ---
@@ -169,6 +171,7 @@ while expanded:
 pairs_agg = pairs_agg[
     pairs_agg.apply(lambda row: (row['source'], row['target']) in visited_edges, axis=1)
 ]
+
 
 
 # ✅ 노드 매핑 및 좌표 계산
