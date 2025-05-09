@@ -11,16 +11,23 @@ st.set_page_config(layout="wide")
 st.title("\U0001F9ED Sankey Diagram")
 
 # UI에서 카테고리 입력 받기
-category_input = st.text_input('카테고리를 입력하세요:', '')
-category_select = st.selectbox('카테고리 선택', ['스탠바이미', '냉장고', '세탁기', 'TV'])
+col1, col2 = st.columns([2, 1])  # 비율은 필요에 따라 조정 가능
+with col1:
+    category_input = st.text_input('카테고리를 입력하세요:', '')
+with col2:
+    category_select = st.selectbox('카테고리 선택', ['스탠바이미', '냉장고', '세탁기', 'TV'])
 selected_category = category_input if category_input else category_select
+
 st.markdown(f"### \U0001F50D 선택된 카테고리: `{selected_category}`")
 
 # ✅ 날짜 범위 입력 받기 (기본값: 오늘 ~ 오늘)
-from datetime import date
-start_date = st.date_input("조회 시작 날짜", value=date(2025, 4, 1)) #오늘날짜: value=date.today()
-end_date = st.date_input("조회 종료 날짜", value=date(2025, 4, 1))
 
+from datetime import date
+col3, col4 = st.columns(2)
+with col3:
+    start_date = st.date_input("조회 시작 날짜", value=date(2025, 4, 1))  #오늘날짜: value=date.today()
+with col4:
+    end_date = st.date_input("조회 종료 날짜", value=date(2025, 4, 1))
 
 # GCP 인증 처리
 secrets = st.secrets["gcp_service_account"]
