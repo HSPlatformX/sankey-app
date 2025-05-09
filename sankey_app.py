@@ -90,12 +90,25 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # ✅ 노드 매핑 (각 label에 고유 index 단계 부여)
+    # 1. 모든 노드 추출
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
-node_map = {name: i for i, name in enumerate(all_nodes)}
 
-# ✅ source/target 라벨을 숫자 ID로 매핑
-pairs_agg['source_id'] = pairs_agg['source'].map(node_map)
-pairs_agg['target_id'] = pairs_agg['target'].map(node_map)
+    # 2. 마지막 노드 판별
+targets = set(pairs_agg['target'])
+sources = set(pairs_agg['source'])
+last_nodes = targets - sources
+
+    # 3. 마지막 노드는 단계 제거된 이름으로 통일
+def maybe_clean(label):
+    return clean_label_for_last_node(label) if label in last_nodes else label
+
+    # 4. 병합된 노드 리스트로 node_map 생성
+all_nodes_cleaned = [maybe_clean(label) for label in all_nodes]
+node_map = {name: i for i, name in enumerate(pd.unique(all_nodes_cleaned))}
+
+# ✅ source/target 라벨을 숫자 ID로 매핑. 병합 라벨 적용(마지막 노드명 동일시 하나로)
+pairs_agg['source_id'] = pairs_agg['source'].apply(maybe_clean).map(node_map)
+pairs_agg['target_id'] = pairs_agg['target'].apply(maybe_clean).map(node_map)
 
 # ✅ 각 노드 라벨에서 단계 숫자 추출
 def extract_step(label):
