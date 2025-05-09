@@ -225,8 +225,8 @@ node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
 fig = go.Figure(data=[go.Sankey(
     arrangement="fixed",
     node=dict(
-        pad=15,
-        thickness=20,
+        pad=20,  # 노드 간 여백 확대
+        thickness=30,  # 노드 두께 확대
         label=list(node_map.keys()),
         line=dict(color="black", width=0.5),
         x=node_x
@@ -237,9 +237,14 @@ fig = go.Figure(data=[go.Sankey(
         value=pairs_agg['value']
     )
 )])
+
 fig.update_layout(
     title_text=f"세션 기반 Sankey for `{selected_category}`",
-    font_size=10,
-    margin=dict(l=0, r=0, t=40, b=0)
+    font=dict(size=14),  # 🔍 텍스트 크기 확대
+    width=1200,          # 🔍 차트 가로 크기 확대
+    height=700,          # 🔍 차트 세로 크기 확대
+    margin=dict(l=20, r=20, t=60, b=20)  # 여백 조정
 )
-st.plotly_chart(fig, use_container_width=True)
+
+st.plotly_chart(fig, use_container_width=False)
+
