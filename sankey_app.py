@@ -63,9 +63,9 @@ st.write(last_pages['page'].value_counts())
 
 # ✅ 세션별 page 리스트로 경로 생성
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
-session_paths['path_str'] = session_paths['page'].apply(lambda x: ' > '.join(x))
-path_counts = session_paths['path_str'].value_counts().reset_index()
-path_counts.columns = ['path', 'value']
+path_counts = session_paths['page'].value_counts().reset_index()
+path_counts.columns = ['path', 'value']  # path는 리스트 상태 유지됨
+
 
 # ✅ pair 생성
 def path_to_pairs(path, value):
