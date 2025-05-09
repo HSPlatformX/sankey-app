@@ -106,7 +106,22 @@ for _, row in path_counts.iterrows():
     pairs.extend(path_to_pairs(row['path'], row['value']))
 
 # ✅ source-target-value DataFrame 생성
-pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
+ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
+
+
+####################### 10이하 제거 테스트 
+# 1. 모든 노드(label)의 등장 횟수 집계
+node_counts = pd.concat([pairs_df['source'], pairs_df['target']]).value_counts()
+
+# 2. 10회 이하로 등장한 노드 목록
+rare_nodes = node_counts[node_counts <= 10].index
+
+# 3. source 또는 target에 rare_nodes가 포함된 row 제거
+pairs_df = pairs_df[
+    ~pairs_df['source'].isin(rare_nodes) &
+    ~pairs_df['target'].isin(rare_nodes)
+].reset_index(drop=True)
+##################################
 
 # ✅ source-target 쌍 집계 (동일 경로는 합산)
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
