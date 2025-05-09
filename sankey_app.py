@@ -80,6 +80,10 @@ df['is_start'] = df['step'] == 1  # (여기서도 step은 원본 그대로 사�
 # 3. 세션별 페이지 흐름을 리스트로 추출 
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
 
+#마지막 페이지 count 
+last_pages = df.groupby('user_session_id').tail(1)
+st.write(last_pages['page'].value_counts())
+
 # 4. 동일한 path가 몇 번 등장했는지 집계
 path_counts = session_paths['page'].value_counts().reset_index()
 path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈도수
