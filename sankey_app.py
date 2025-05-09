@@ -240,11 +240,11 @@ fig = go.Figure(data=[go.Sankey(
 
 fig.update_layout(
     title_text=f"세션 기반 Sankey for `{selected_category}`",
-    font=dict(size=30),  # 🔍 텍스트 크기 확대
+    font=dict(size=20),  # 🔍 텍스트 크기 확대
     width=1200,          # 🔍 차트 가로 크기 확대
-    height=2000,          # 🔍 차트 세로 크기 확대
+    height=1500,          # 🔍 차트 세로 크기 확대
     margin=dict(l=20, r=20, t=60, b=20)  # 여백 조정
 )
 
-st.plotly_chart(fig, use_container_width=False)
+st.plotly_chart(fig, use_container_width=True)
 
