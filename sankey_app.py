@@ -123,7 +123,7 @@ def extract_step(label):
     match = re.search(r"\((\d+)단계\)", label)
     return int(match.group(1)) if match else 0
 
-# ✅ 단계 수 기준으로 x좌표 계산
+# ✅ 단계 수 기준으로 x좌표 계산 (node_map: 병합된 노드 적용)
 depth_map = {label: extract_step(label) for label in node_map.keys()}
 max_depth = max(depth_map.values()) if depth_map else 1
 node_x = []
