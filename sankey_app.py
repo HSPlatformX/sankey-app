@@ -109,14 +109,21 @@ for _, row in path_counts.iterrows():
  pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 
 
-####################### 10이하 제거 테스트 
-# 1. 모든 노드(label)의 등장 횟수 집계
-node_counts = pd.concat([pairs_df['source'], pairs_df['target']]).value_counts()
+####################### 세션 10 이하 제거 테스트 
+# ✅ 각 source-target 쌍의 세션 수 세기 위한 임시 컬럼 생성 (source-target 기준으로)
+# (주의: path_counts['value']는 세션 수 의미)
+node_counts_by_step = pd.concat([
+    pairs_df[['source', 'value']].rename(columns={'source': 'node'}),
+    pairs_df[['target', 'value']].rename(columns={'target': 'node'})
+])
 
-# 2. 10회 이하로 등장한 노드 목록
-rare_nodes = node_counts[node_counts <= 10].index
+# ✅ node (ex: '장바구니 (3단계)') 별 총 세션 수 집계
+step_node_session_counts = node_counts_by_step.groupby('node')['value'].sum()
 
-# 3. source 또는 target에 rare_nodes가 포함된 row 제거
+# ✅ 세션 수가 10 이하인 노드 필터링
+rare_nodes = step_node_session_counts[step_node_session_counts <= 10].index
+
+# ✅ source 또는 target 중 rare_nodes에 해당하는 row 제거
 pairs_df = pairs_df[
     ~pairs_df['source'].isin(rare_nodes) &
     ~pairs_df['target'].isin(rare_nodes)
