@@ -106,7 +106,7 @@ for _, row in path_counts.iterrows():
     pairs.extend(path_to_pairs(row['path'], row['value']))
 
 # ✅ source-target-value DataFrame 생성
- pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
+pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 
 
 ####################### 세션 10 이하 제거 테스트 
