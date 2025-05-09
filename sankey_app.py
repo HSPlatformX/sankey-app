@@ -45,7 +45,7 @@ job_config = bigquery.QueryJobConfig(
 )
 df = client.query(query, job_config=job_config).to_dataframe()
 df = df.dropna(subset=['user_session_id', 'step', 'page'])
-df['page'] = df['page'].astype(str).str.strip().str.replace(r'\s+', '', regex=True)
+df['page'] = df['page'].astype(str).str.strip()
 
 # ✅ 세션 시작 노드 조건
 sessions_with_step1 = df[df['step'] == 1]['user_session_id'].unique()
