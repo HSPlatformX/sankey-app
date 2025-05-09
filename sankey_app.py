@@ -101,8 +101,6 @@ for label in node_map.keys():
         step = extract_step(label)
         node_x.append(step / max_depth if max_depth > 0 else 0.1)
 
-node_y = [i / len(node_map) for i in range(len(node_map))]  
-
 # ✅ 마지막 노드만 (단계) 제거
 def clean_label_for_last_node(label):
     if re.search(r'\(\d+단계\)', label) and '(1단계)' not in label:
