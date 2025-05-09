@@ -176,13 +176,19 @@ depth_map = {node: extract_step(node) for node in all_nodes}
 max_depth = max(depth_map.values()) if depth_map else 1
 node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
 
+# ✅ 라벨에서 (단계) 제거
+def clean_label(label):
+    return re.sub(r'\s*\(\d+단계\)', '', label)
+
+cleaned_labels = [clean_label(label) for label in node_map.keys()]
+
 # ✅ Sankey 시각화
 fig = go.Figure(data=[go.Sankey(
     arrangement="fixed",
     node=dict(
         pad=20,
         thickness=30,
-        label=list(node_map.keys()),
+        label=cleaned_labels,
         line=dict(color="black", width=0.5),
         x=node_x
     ),
