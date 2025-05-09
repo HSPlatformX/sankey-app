@@ -51,7 +51,11 @@ df['page'] = df['page'].astype(str).str.strip().str.replace(r'\s+', '', regex=Tr
 sessions_with_step1 = df[df['step'] == 1]['user_session_id'].unique()
 df = df[df['user_session_id'].isin(sessions_with_step1)]
 
-df = df.sort_values(['user_session_id', 'step']) 
+# ✅ 세션 시작 노드 설정용 플래그 추가 (cumcount 전에!)
+df = df.sort_values(['user_session_id', 'step'])
+df['is_start'] = df.groupby('user_session_id').cumcount() == 0
+
+# ✅ step 새로 부여
 df['step'] = df.groupby('user_session_id').cumcount() + 1
 
 last_pages = df.groupby('user_session_id').tail(1)
@@ -64,12 +68,11 @@ path_counts = session_paths['path_str'].value_counts().reset_index()
 path_counts.columns = ['path', 'value']
 
 # ✅ pair 생성
-def path_to_pairs(path_str, value):
-    steps = path_str.split(' > ')
+def path_to_pairs(path, value):
     pairs = []
-    for i in range(len(steps) - 1):
-        source = f"{steps[i]} ({i+1}단계)" if i > 0 else "세션 시작"
-        target = f"{steps[i+1]} ({i+2}단계)"
+    for i in range(len(path) - 1):
+        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
+        target = f"{path[i+1]} ({i+2}단계)"
         pairs.append((source, target, value))
     return pairs
 
