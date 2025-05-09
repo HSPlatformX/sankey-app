@@ -128,8 +128,7 @@ fig = go.Figure(data=[go.Sankey(
         thickness=30,
         label=list(cleaned_labels),
         line=dict(color="black", width=0.5),
-        x=node_x,
-        y=node_y
+        x=node_x
     ),
     link=dict(
         source=pairs_agg['source_id'],
