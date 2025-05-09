@@ -80,11 +80,22 @@ df['is_start'] = df['step'] == 1  # (여기서도 step은 원본 그대로 사�
 # 3. 세션별 페이지 흐름을 리스트로 추출 
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
 
+
+###단계 필터링 테스트 #################### 2단계까지 고유 노드 수가 10 이하인 경우, 이후 단계 제거
+def should_truncate(path):
+    first_two = path[:2]
+    return len(set(first_two)) <= 10
+
+def truncate_if_needed(path):
+    if should_truncate(path):
+        return path[:2]  # 2단계까지만 유지
+    return path  # 원래 path 유지
+session_paths['path'] = session_paths['page'].apply(truncate_if_needed)
+
+
 # 4. 동일한 path가 몇 번 등장했는지 집계
-path_counts = session_paths['page'].value_counts().reset_index()
+path_counts = session_paths['path'].value_counts().reset_index()
 path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈도수
-
-
 
 
 # ✅ pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
