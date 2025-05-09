@@ -109,7 +109,13 @@ def extract_step(label):
 
 depth_map = {node: extract_step(node) for node in all_nodes}
 max_depth = max(depth_map.values()) if depth_map else 1
-node_x = [depth_map.get(name, 0) / max_depth for name in node_map.keys()]
+node_x = []
+for label in node_map.keys():
+    if label == "세션 시작":
+        node_x.append(0.0)
+    else:
+        step = extract_step(label)
+        node_x.append(step / max_depth if max_depth > 0 else 0.1)
 
 # ✅ 마지막 노드만 (단계) 제거
 def clean_label_for_last_node(label):
