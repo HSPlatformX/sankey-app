@@ -18,8 +18,8 @@ st.markdown(f"### \U0001F50D 선택된 카테고리: `{selected_category}`")
 
 # ✅ 날짜 범위 입력 받기 (기본값: 오늘 ~ 오늘)
 from datetime import date
-start_date = st.date_input("조회 시작 날짜", value=date.today())
-end_date = st.date_input("조회 종료 날짜", value=date.today())
+start_date = st.date_input("조회 시작 날짜", value=date(2025, 4, 1)) #오늘날짜: value=date.today()
+end_date = st.date_input("조회 종료 날짜", value=date(2025, 4, 1))
 
 
 # GCP 인증 처리
