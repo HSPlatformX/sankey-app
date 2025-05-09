@@ -156,6 +156,7 @@ pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 # --- 4. 종료 노드: 실제 df 기준 종료 노드 구함 ---
 # (불필요한 terminal_nodes_with_step 제거됨)
 
+visited_edges = set()
 
 # --- 6. 최종 필터링 적용 ---
 pairs_agg = pairs_agg[
