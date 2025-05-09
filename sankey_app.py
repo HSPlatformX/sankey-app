@@ -77,23 +77,7 @@ for _, row in path_counts.iterrows():
 
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 
-# ✅ 불필요한 노드 제거
-def get_base_node_name(label):
-    return re.sub(r'\s*\(\d+단계\)', '', label)
-
-def is_excluded_node(label):
-    base = get_base_node_name(label)
-    return base in ['기획전상세', '마이페이지']
-
-pairs_df = pairs_df[
-    ~pairs_df['source'].apply(is_excluded_node) &
-    ~pairs_df['target'].apply(is_excluded_node)
-].reset_index(drop=True)
-
-pairs_df = pairs_df[
-    ~((pairs_df['source'] == '세션 시작') & (pairs_df['target'].apply(is_excluded_node)))
-].reset_index(drop=True)
-
+# ✅ pair 집계
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # ✅ 노드 매핑 및 좌표 계산
@@ -146,7 +130,8 @@ fig = go.Figure(data=[go.Sankey(
         thickness=30,
         label=list(cleaned_labels),
         line=dict(color="black", width=0.5),
-        x=node_x
+        x=node_x,
+        y=node_y
     ),
     link=dict(
         source=pairs_agg['source_id'],
