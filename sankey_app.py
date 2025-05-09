@@ -133,6 +133,9 @@ for label in node_map.keys():
     else:
         cleaned_labels.append(label)
 
+st.write("🔍 Sankey 노드 label 샘플:")
+st.write(cleaned_labels[:30])  # 첫 30개만 보기
+
 # ✅ Sankey 시각화
 fig = go.Figure(data=[go.Sankey(
     arrangement="fixed",
