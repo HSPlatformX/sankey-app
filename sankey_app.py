@@ -47,25 +47,20 @@ df = client.query(query, job_config=job_config).to_dataframe()
 df = df.dropna(subset=['user_session_id', 'step', 'page'])
 df['page'] = df['page'].astype(str).str.strip()
 
-# ✅ 세션 시작 노드 조건
+# 1. 세션 시작 조건 필터링 (step=1 포함 세션만 사용)
 sessions_with_step1 = df[df['step'] == 1]['user_session_id'].unique()
 df = df[df['user_session_id'].isin(sessions_with_step1)]
 
-# ✅ 세션 시작 노드 설정용 플래그 추가 (cumcount 전에!)
+# 2. 정렬 및 세션 시작 플래그 지정
 df = df.sort_values(['user_session_id', 'step'])
-df['is_start'] = df.groupby('user_session_id').cumcount() == 0
+df['is_start'] = df['step'] == 1  # (여기서도 step은 원본 그대로 사용)
 
-# ✅ step 새로 부여
-df['step'] = df.groupby('user_session_id').cumcount() + 1
-
-last_pages = df.groupby('user_session_id').tail(1)
-st.write(last_pages['page'].value_counts())
-
-# ✅ 세션별 page 리스트로 경로 생성
+# 3. 경로 추출
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
-path_counts = session_paths['page'].value_counts().reset_index()
-path_counts.columns = ['path', 'value']  # path는 리스트 상태 유지됨
 
+# 4. 경로별 빈도 집계 (리스트 상태 유지)
+path_counts = session_paths['page'].value_counts().reset_index()
+path_counts.columns = ['path', 'value']
 
 # ✅ pair 생성
 def path_to_pairs(path, value):
@@ -133,8 +128,6 @@ for label in node_map.keys():
     else:
         cleaned_labels.append(label)
 
-st.write("🔍 Sankey 노드 label 샘플:")
-st.write(cleaned_labels[:30])  # 첫 30개만 보기
 
 # ✅ Sankey 시각화
 fig = go.Figure(data=[go.Sankey(
@@ -142,7 +135,7 @@ fig = go.Figure(data=[go.Sankey(
     node=dict(
         pad=20,
         thickness=30,
-        label=cleaned_labels,
+        label=list(cleaned_labels),
         line=dict(color="black", width=0.5),
         x=node_x
     ),
