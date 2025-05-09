@@ -50,7 +50,7 @@ df['page'] = df['page'].astype(str).str.strip().str.replace(r'\s+', '', regex=Tr
 df.loc[df['step'] == 1, 'page'] = '세션 시작'
 
 # 세션별로 트리밍
-df = df.groupby('user_session_id', group_keys=False).apply(truncate_after_completion)
+# df = df.groupby('user_session_id', group_keys=False).apply(truncate_after_completion)
 
 # 경로 추출
 paths = df.sort_values(['user_session_id', 'step']).groupby('user_session_id')['page'].apply(list).reset_index()
