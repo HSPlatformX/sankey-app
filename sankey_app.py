@@ -101,6 +101,8 @@ for label in node_map.keys():
         step = extract_step(label)
         node_x.append(step / max_depth if max_depth > 0 else 0.1)
 
+node_y = [i / len(node_map) for i in range(len(node_map))]  
+
 # ✅ 마지막 노드만 (단계) 제거
 def clean_label_for_last_node(label):
     if re.search(r'\(\d+단계\)', label) and '(1단계)' not in label:
@@ -117,10 +119,6 @@ for label in node_map.keys():
         cleaned_labels.append(clean_label_for_last_node(label))
     else:
         cleaned_labels.append(label)
-
-# path_counts['path']가 길이가 1 이상일 때 첫 경로 점검
-sample_path = path_counts['path'].iloc[0]
-st.write("👀 path 샘플:", sample_path)
 
 # ✅ Sankey 시각화
 fig = go.Figure(data=[go.Sankey(
