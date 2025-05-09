@@ -16,6 +16,12 @@ category_select = st.selectbox('카테고리 선택', ['스탠바이미', '냉�
 selected_category = category_input if category_input else category_select
 st.markdown(f"### \U0001F50D 선택된 카테고리: `{selected_category}`")
 
+# ✅ 날짜 범위 입력 받기 (기본값: 오늘 ~ 오늘)
+from datetime import date
+start_date = st.date_input("조회 시작 날짜", value=date.today())
+end_date = st.date_input("조회 종료 날짜", value=date.today())
+
+
 # GCP 인증 처리
 secrets = st.secrets["gcp_service_account"]
 private_key = base64.b64decode(secrets["private_key"]).decode()
@@ -38,13 +44,18 @@ query = """
     SELECT user_session_id, step, page
     FROM `lge-big-query-data.hsad.test_0423_2`
     WHERE category = @category
+    AND date BETWEEN @start_date AND @end_date
     ORDER BY user_session_id, step
 """
 ############################################################
 
 # 쿼리 실행 시 사용할 파라미터 바인딩
 job_config = bigquery.QueryJobConfig(
-    query_parameters=[bigquery.ScalarQueryParameter("category", "STRING", selected_category)]
+    query_parameters=[
+        bigquery.ScalarQueryParameter("category", "STRING", selected_category),
+        bigquery.ScalarQueryParameter("start_date", "DATE", start_date),
+        bigquery.ScalarQueryParameter("end_date", "DATE", end_date)
+    ]
 )
 
 df = client.query(query, job_config=job_config).to_dataframe() # //쿼리 실행 -> DataFrame 변환 
