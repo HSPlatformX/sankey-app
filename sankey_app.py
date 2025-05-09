@@ -128,6 +128,9 @@ for label in node_map.keys():
     else:
         cleaned_labels.append(label)
 
+# path_counts['path']가 길이가 1 이상일 때 첫 경로 점검
+sample_path = path_counts['path'].iloc[0]
+st.write("👀 path 샘플:", sample_path)
 
 # ✅ Sankey 시각화
 fig = go.Figure(data=[go.Sankey(
