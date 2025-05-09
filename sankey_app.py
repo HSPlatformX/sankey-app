@@ -89,6 +89,13 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 # ✅ source-target 쌍 집계 (동일 경로는 합산)
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
+
+# ✅ 마지막 노드에서는 "(n단계)" 텍스트 제거
+def clean_label_for_last_node(label):
+    if re.search(r'\(\d+단계\)', label) and '(1단계)' not in label:
+        return re.sub(r'\s*\(\d+단계\)', '', label)
+    return label
+
 # ✅ 노드 매핑 (각 label에 고유 index 단계 부여)
     # 1. 모든 노드 추출
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
@@ -117,7 +124,7 @@ def extract_step(label):
     return int(match.group(1)) if match else 0
 
 # ✅ 단계 수 기준으로 x좌표 계산
-depth_map = {node: extract_step(node) for node in all_nodes}
+depth_map = {label: extract_step(label) for label in node_map.keys()}
 max_depth = max(depth_map.values()) if depth_map else 1
 node_x = []
 for label in node_map.keys():
@@ -127,11 +134,7 @@ for label in node_map.keys():
         step = extract_step(label)
         node_x.append(step / max_depth if max_depth > 0 else 0.1)
 
-# ✅ 마지막 노드에서는 "(n단계)" 텍스트 제거
-def clean_label_for_last_node(label):
-    if re.search(r'\(\d+단계\)', label) and '(1단계)' not in label:
-        return re.sub(r'\s*\(\d+단계\)', '', label)
-    return label
+
 
 targets = set(pairs_agg['target'])
 sources = set(pairs_agg['source'])
