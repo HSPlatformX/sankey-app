@@ -88,7 +88,7 @@ st.write(last_pages['page'].value_counts())
 path_counts = session_paths['page'].value_counts().reset_index()
 path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈도수
 
-# path_counts에서 value가 낮은 path 제거
+# 📍 전체 path에서 value 낮은 path 제거 : 희소 경로 제거 
 path_counts = path_counts[path_counts['value'] > 5].reset_index(drop=True)
 
 
@@ -176,8 +176,14 @@ for label in node_map.keys():
     else:
         cleaned_labels.append(label)
 
-st.write(f"총 세션 수: {len(session_paths)} → 필터링 후: {len(path_counts)} 경로 시각화")
 
+# 전체 세션 수
+total_sessions = len(session_paths)
+# 시각화에 포함된 세션 수
+visualized_sessions = path_counts['value'].sum()
+
+st.write(f"총 세션 수: {len(session_paths)} → 필터링 후: 대표 {len(path_counts)} 경로 시각화")
+st.write(f"✅ 시각화된 세션 수 (대표 경로 포함): {visualized_sessions}")
 
 
 # ✅✅ Sankey 시각화 다이아그램 그리기 ✅✅
