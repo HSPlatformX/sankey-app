@@ -135,7 +135,7 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 # # ✅ 제거용 컬럼 정리
 # pairs_df = pairs_df.drop(columns=['source_base', 'target_base'])
 
-st.write("❌ 제거된 희소 노드 목록 (세션수 ≤ 5):", rare_nodes.tolist())
+# st.write("❌ 제거된 희소 노드 목록 (세션수 ≤ 5):", rare_nodes.tolist())
 
 # ✅ source-target 쌍 집계 (동일 경로는 합산)
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
