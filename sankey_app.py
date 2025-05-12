@@ -108,32 +108,32 @@ for _, row in path_counts.iterrows():
 # ✅ source-target-value DataFrame 생성
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 
-# ✅ 단계 제거 함수 (공통)
-def strip_step(label):
-    return re.sub(r'\s*\(\d+단계\)', '', label)
+# # ✅ 단계 제거 함수 (공통)
+# def strip_step(label):
+#     return re.sub(r'\s*\(\d+단계\)', '', label)
 
-# ✅ source/target의 단계를 제거한 컬럼 생성
-pairs_df['source_base'] = pairs_df['source'].apply(strip_step)
-pairs_df['target_base'] = pairs_df['target'].apply(strip_step)
+# # ✅ source/target의 단계를 제거한 컬럼 생성
+# pairs_df['source_base'] = pairs_df['source'].apply(strip_step)
+# pairs_df['target_base'] = pairs_df['target'].apply(strip_step)
 
-# ✅ source/target 전체 노드 기준 세션 수 합산
-node_value_counts = pd.concat([
-    pairs_df[['source_base', 'value']].rename(columns={'source_base': 'node'}),
-    pairs_df[['target_base', 'value']].rename(columns={'target_base': 'node'})
-])
-total_node_values = node_value_counts.groupby('node')['value'].sum()
+# # ✅ source/target 전체 노드 기준 세션 수 합산
+# node_value_counts = pd.concat([
+#     pairs_df[['source_base', 'value']].rename(columns={'source_base': 'node'}),
+#     pairs_df[['target_base', 'value']].rename(columns={'target_base': 'node'})
+# ])
+# total_node_values = node_value_counts.groupby('node')['value'].sum()
 
-# ✅ 세션 수 10 이하 노드 추출
-rare_nodes = total_node_values[total_node_values <= 5].index
+# # ✅ 세션 수 10 이하 노드 추출
+# rare_nodes = total_node_values[total_node_values <= 5].index
 
-# ✅ rare_nodes에 해당하는 원본 단계 포함 노드 제거
-pairs_df = pairs_df[
-    ~pairs_df['source_base'].isin(rare_nodes) &
-    ~pairs_df['target_base'].isin(rare_nodes)
-].reset_index(drop=True)
+# # ✅ rare_nodes에 해당하는 원본 단계 포함 노드 제거
+# pairs_df = pairs_df[
+#     ~pairs_df['source_base'].isin(rare_nodes) &
+#     ~pairs_df['target_base'].isin(rare_nodes)
+# ].reset_index(drop=True)
 
-# ✅ 제거용 컬럼 정리
-pairs_df = pairs_df.drop(columns=['source_base', 'target_base'])
+# # ✅ 제거용 컬럼 정리
+# pairs_df = pairs_df.drop(columns=['source_base', 'target_base'])
 
 st.write("❌ 제거된 희소 노드 목록 (세션수 ≤ 5):", rare_nodes.tolist())
 
