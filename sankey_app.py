@@ -97,7 +97,8 @@ path_counts = path_counts[path_counts['path'].apply(lambda x: x[-1] in ['주문�
 path_counts = path_counts.reset_index(drop=True)
 
 # 전체 세션 수 계산
-total_sessions = len(session_paths)
+#total_sessions = len(session_paths)
+total_sessions = path_counts['value'].sum()
 # 기준: 전체 세션의 1%
 min_threshold = total_sessions * 0.01
 
