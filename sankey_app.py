@@ -184,7 +184,7 @@ for label in node_map.keys():
 # 시각화에 포함된 세션 수
 visualized_sessions = path_counts['value'].sum()
 
-st.write(f"총 세션 수: {len(session_paths)} → 필터링 후: 대표 {len(path_counts)} 경로 시각화")
+st.write(f"총 세션 수: {len(session_paths)} , 1%: {min_threshold} → 필터링 후: 대표 {len(path_counts)} 경로 시각화")
 st.write(f"✅ 시각화된 세션 수 (대표 경로 포함): {visualized_sessions}")
 
 #마지막 페이지 count 
