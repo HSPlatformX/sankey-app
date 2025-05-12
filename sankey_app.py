@@ -214,7 +214,7 @@ fig.update_layout(
     title_text=f"세션 기반 Sankey for `{selected_category}`",
     font=dict(size=20),
     width=1200,
-    height=1000,
+    height=800,
     margin=dict(l=20, r=20, t=60, b=20)
 )
 
