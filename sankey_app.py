@@ -140,6 +140,9 @@ st.write("❌ 제거된 희소 노드 목록 (세션수 ≤ 10):", rare_nodes.to
 # ✅ source-target 쌍 집계 (동일 경로는 합산)
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
+# ✅ 링크 기준 세션 수가 10 이하인 연결선 제거
+pairs_agg = pairs_agg[pairs_agg['value'] > 10].reset_index(drop=True)
+
 
 # ✅ 마지막 노드에서는 "(n단계)" 텍스트 제거
 def clean_label_for_last_node(label):
