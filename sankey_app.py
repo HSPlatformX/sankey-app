@@ -97,8 +97,8 @@ path_counts = path_counts[path_counts['path'].apply(lambda x: x[-1] in ['주문�
 path_counts = path_counts.reset_index(drop=True)
 
 # 전체 세션 수 계산
-#total_sessions = len(session_paths)
-total_sessions = path_counts['value'].sum()
+total_sessions = len(session_paths)
+# total_sessions = path_counts['value'].sum()
 # 기준: 전체 세션의 1%
 min_threshold = total_sessions * 0.01
 
@@ -111,7 +111,8 @@ path_counts = path_counts[path_counts['value'] > min_threshold].reset_index(drop
 def path_to_pairs(path, value):
     pairs = []
     for i in range(len(path) - 1):
-        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
+        # source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
+        source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1}단계)"
         target = f"{path[i+1]} ({i+2}단계)"
         pairs.append((source, target, value))
     return pairs
