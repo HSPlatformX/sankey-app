@@ -124,7 +124,7 @@ node_value_counts = pd.concat([
 total_node_values = node_value_counts.groupby('node')['value'].sum()
 
 # ✅ 세션 수 10 이하 노드 추출
-rare_nodes = total_node_values[total_node_values <= 10].index
+rare_nodes = total_node_values[total_node_values <= 5].index
 
 # ✅ rare_nodes에 해당하는 원본 단계 포함 노드 제거
 pairs_df = pairs_df[
@@ -135,13 +135,13 @@ pairs_df = pairs_df[
 # ✅ 제거용 컬럼 정리
 pairs_df = pairs_df.drop(columns=['source_base', 'target_base'])
 
-st.write("❌ 제거된 희소 노드 목록 (세션수 ≤ 10):", rare_nodes.tolist())
+st.write("❌ 제거된 희소 노드 목록 (세션수 ≤ 5):", rare_nodes.tolist())
 
 # ✅ source-target 쌍 집계 (동일 경로는 합산)
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # ✅ 링크 기준 세션 수가 10 이하인 연결선 제거
-pairs_agg = pairs_agg[pairs_agg['value'] > 10].reset_index(drop=True)
+pairs_agg = pairs_agg[pairs_agg['value'] > 5].reset_index(drop=True)
 
 
 # ✅ 마지막 노드에서는 "(n단계)" 텍스트 제거
