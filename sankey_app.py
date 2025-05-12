@@ -109,6 +109,25 @@ for _, row in path_counts.iterrows():
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 
 
+# ✅ source/target별 세션 수 합산 (value 기준)
+node_value_counts = pd.concat([
+    pairs_df[['source', 'value']].rename(columns={'source': 'node'}),
+    pairs_df[['target', 'value']].rename(columns={'target': 'node'})
+])
+
+total_node_values = node_value_counts.groupby('node')['value'].sum()
+
+# ✅ 세션수(value)가 10 이하인 노드 추출
+rare_nodes = total_node_values[total_node_values <= 10].index
+
+# ✅ 해당 노드 포함한 source/target 제거
+pairs_df = pairs_df[
+    ~pairs_df['source'].isin(rare_nodes) &
+    ~pairs_df['target'].isin(rare_nodes)
+].reset_index(drop=True)
+
+st.write("❌ 제거된 희소 노드 목록 (세션수 ≤ 10):", rare_nodes.tolist())
+
 # ✅ source-target 쌍 집계 (동일 경로는 합산)
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
