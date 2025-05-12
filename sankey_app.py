@@ -87,15 +87,6 @@ path_counts = session_paths['page'].value_counts().reset_index()
 path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈도수
 
 
-# 🔒 필터 조건 1: '세션 시작'으로 시작하는 경로만 유지
-path_counts = path_counts[path_counts['path'].apply(lambda x: x[0] == "세션 시작")]
-
-# 🔒 필터 조건 2: '주문완료' 또는 '구독완료'로 끝나는 경로만 유지
-path_counts = path_counts[path_counts['path'].apply(lambda x: x[-1] in ['주문완료', '구독완료'])]
-
-# 인덱스 초기화
-path_counts = path_counts.reset_index(drop=True)
-
 # 전체 세션 수 계산
 total_sessions = len(session_paths)
 # total_sessions = path_counts['value'].sum()
