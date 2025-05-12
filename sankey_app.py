@@ -80,16 +80,20 @@ df['is_start'] = df['step'] == 1  # (여기서도 step은 원본 그대로 사�
 # 3. 세션별 페이지 흐름을 리스트로 추출 
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
 
-#마지막 페이지 count 
-last_pages = df.groupby('user_session_id').tail(1)
-st.write(last_pages['page'].value_counts())
+
 
 # 4. 동일한 path가 몇 번 등장했는지 집계
 path_counts = session_paths['page'].value_counts().reset_index()
 path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈도수
 
-# 📍 전체 path에서 value 낮은 path 제거 : 희소 경로 제거 
-path_counts = path_counts[path_counts['value'] > 5].reset_index(drop=True)
+# 전체 세션 수 계산
+total_sessions = len(session_paths)
+# 기준: 전체 세션의 5%
+min_threshold = total_sessions * 0.05
+
+
+# 📍 전체 path에서 value 낮은(5%) path 제거 : 희소 경로 제거 
+path_counts = path_counts[path_counts['value'] > min_threshold].reset_index(drop=True)
 
 
 # ✅ pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
@@ -177,13 +181,15 @@ for label in node_map.keys():
         cleaned_labels.append(label)
 
 
-# 전체 세션 수
-total_sessions = len(session_paths)
 # 시각화에 포함된 세션 수
 visualized_sessions = path_counts['value'].sum()
 
 st.write(f"총 세션 수: {len(session_paths)} → 필터링 후: 대표 {len(path_counts)} 경로 시각화")
 st.write(f"✅ 시각화된 세션 수 (대표 경로 포함): {visualized_sessions}")
+
+#마지막 페이지 count 
+# last_pages = df.groupby('user_session_id').tail(1)
+# st.write(last_pages['page'].value_counts())
 
 
 # ✅✅ Sankey 시각화 다이아그램 그리기 ✅✅
