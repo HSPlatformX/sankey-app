@@ -159,11 +159,9 @@ last_nodes = targets - sources
     # 4. 병합된 노드 리스트로 node_map 생성
 #all_nodes_cleaned = [maybe_clean(label) for label in all_nodes]
 
-# 0521 정제 규칙을 명확히 반영해서 다시 구성
-all_nodes_cleaned = [
-    clean_label_for_last_node(label) if should_clean_label(label) else label
-    for label in all_nodes
-]
+# 라벨 그대로 사용
+all_nodes_cleaned = all_nodes  
+
 # node map 생성
 node_map = {name: i for i, name in enumerate(pd.unique(all_nodes))}
 
@@ -194,12 +192,12 @@ for label in node_map.keys():
 
 
 # ✅ 종착 노드 라벨 최종 정제
-cleaned_labels = []
-for label in node_map.keys():
-    if label in last_nodes and should_clean_label(label):
-        cleaned_labels.append(clean_label_for_last_node(label))
-    else:
-        cleaned_labels.append(label)
+# cleaned_labels = []
+# for label in node_map.keys():
+#     if label in last_nodes and should_clean_label(label):
+#         cleaned_labels.append(clean_label_for_last_node(label))
+#     else:
+#         cleaned_labels.append(label)
 
 
 # 시각화에 포함된 세션 수
