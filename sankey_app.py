@@ -170,12 +170,24 @@ def maybe_clean(label):
     return clean_label_for_last_node(label) if label in last_nodes else label
 
     # 4. 병합된 노드 리스트로 node_map 생성
-all_nodes_cleaned = [maybe_clean(label) for label in all_nodes]
+#all_nodes_cleaned = [maybe_clean(label) for label in all_nodes]
+
+# 0521 정제 규칙을 명확히 반영해서 다시 구성
+all_nodes_cleaned = [
+    clean_label_for_last_node(label) if should_clean_label(label) else label
+    for label in all_nodes
+]
 node_map = {name: i for i, name in enumerate(pd.unique(all_nodes_cleaned))}
 
-# ✅ source/target 라벨을 숫자 ID로 매핑. 병합 라벨 적용(마지막 노드명 동일시 하나로)
-pairs_agg['source_id'] = pairs_agg['source'].apply(maybe_clean).map(node_map)
-pairs_agg['target_id'] = pairs_agg['target'].apply(maybe_clean).map(node_map)
+# ✅ source/target 라벨을 숫자 ID로 매핑. 병합 라벨 적용(마지막 노드명 주문완료시 하나로 묶음)
+pairs_agg['source_id'] = pairs_agg['source'].apply(
+    lambda label: clean_label_for_last_node(label) if should_clean_label(label) else label
+).map(node_map)
+
+pairs_agg['target_id'] = pairs_agg['target'].apply(
+    lambda label: clean_label_for_last_node(label) if should_clean_label(label) else label
+).map(node_map)
+
 
 # ✅ 각 노드 라벨에서 단계 숫자 추출
 def extract_step(label):
