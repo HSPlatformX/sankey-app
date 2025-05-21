@@ -156,6 +156,16 @@ def clean_label_for_last_node(label):
         return re.sub(r'\s*\(\d+단계\)', '', label)
     return label
 
+# 주문완료 외에는 ~단계 유지 
+COMPLETION_KEYWORDS = ['주문완료', '구독완료']
+
+def should_clean_label(label):
+    return (
+        any(keyword in label for keyword in COMPLETION_KEYWORDS) and
+        re.search(r'\(\d+단계\)', label)
+    )
+
+
 # ✅ 노드 매핑 (각 label에 고유 index 단계 부여)
     # 1. 모든 노드 추출
 all_nodes = pd.unique(pairs_agg[['source', 'target']].values.ravel())
@@ -174,15 +184,6 @@ all_nodes_cleaned = [
     for label in all_nodes
 ]
 node_map = {name: i for i, name in enumerate(pd.unique(all_nodes_cleaned))}
-
-# 주문완료 외에는 -단계 유지 
-COMPLETION_KEYWORDS = ['주문완료', '구독완료']
-
-def should_clean_label(label):
-    return (
-        any(keyword in label for keyword in COMPLETION_KEYWORDS) and
-        re.search(r'\(\d+단계\)', label)
-    )
 
 
 # ✅ source/target 라벨을 숫자 ID로 매핑. 병합 라벨 적용(마지막 노드명 주문완료시 하나로 묶음)
