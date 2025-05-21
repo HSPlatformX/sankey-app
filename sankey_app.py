@@ -245,7 +245,7 @@ fig = go.Figure(data=[go.Sankey(
         pad=20,
         thickness=30,
         label=list(cleaned_labels), # 노드 라벨
-        # line=dict(color="black", width=0.5),
+        color = "blue",
         line=dict(color="rgba(0,0,0,0)", width=0),  # 윤곽선 제거
         x=node_x
     ),
