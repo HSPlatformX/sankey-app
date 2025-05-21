@@ -256,9 +256,8 @@ fig = go.Figure(data=[go.Sankey(
 
 # ✅ 레이아웃 설정 및 출력
 fig.update_layout(
-    title_text=f"세션 기반 Sankey for `{selected_category}`",
+    title_text=f"세션 기반 Sankey for {selected_category}",
     font=dict(size=25, color="black"),
-    plot_bgcolor='white',  # 배경대비
     width=1200,
     height=1000,
     margin=dict(l=20, r=20, t=60, b=20)
