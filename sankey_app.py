@@ -20,7 +20,7 @@ selected_category = category_input if category_input else category_select
 
 st.markdown(f"### \U0001F50D 선택된 카테고리: `{selected_category}`")
 
-# ✅ 날짜 범위 입력 받기 (기본값: 오늘 ~ 오늘)
+# 날짜 범위 입력 받기 (기본값: 오늘 ~ 오늘)
 
 from datetime import date
 col3, col4 = st.columns(2)
@@ -32,11 +32,18 @@ with col4:
 
 # 시각화 단계 슬라이더 형태로  입력 받기 
 
-start_step_input = st.slider("시작 단계", min_value=1, max_value=30, value=1)
-max_step_input = st.slider("최대 시각화 단계", min_value=1, max_value=30, value=6)
+col_step1, col_step2 = st.columns(2)
 
+with col_step1:
+    start_step_input = st.slider("시작 단계", min_value=1, max_value=20, value=1)
+
+with col_step2:
+    max_step_input = st.slider("최대 시각화 단계", min_value=1, max_value=30, value=6)
+
+# 검증: 시작 > 최대 단계일 경우 알림 및 중단
 if start_step_input > max_step_input:
-    st.error("❗ 시작 단계는 최대 시각화 단계보다 클 수 없습니다. 값을 다시 확인해주세요.")
+    st.error("❗ 시작 단계는 최대 시각화 단계보다 클 수 없습니다. 단계를 다시 설정해주세요.")
+    st.stop()
 
 # GCP 인증 처리
 secrets = st.secrets["gcp_service_account"]
