@@ -118,9 +118,9 @@ path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈�
 # def path_to_pairs(path, value):
 #     pairs = []
 #     for i in range(len(path) - 1):
-#         source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
-#         # source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1}단계)"
-#         target = f"{path[i+1]} ({i+2}단계)"
+#         source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1})"
+#         # source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1})"
+#         target = f"{path[i+1]} ({i+2})"
 #         pairs.append((source, target, value))
 #     return pairs
 
@@ -131,8 +131,8 @@ def path_to_pairs(path, value, start_step, max_step):
         step_num = i + 1
         if step_num < start_step or step_num >= max_step:
             continue
-        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
-        target = f"{path[i+1]} ({i+2}단계)"
+        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1})"
+        target = f"{path[i+1]} ({i+2})"
         pairs.append((source, target, value))
     return pairs
     
@@ -156,8 +156,8 @@ pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # ✅ 마지막 노드에서는 "(n단계)" 텍스트 제거
 def clean_label_for_last_node(label):
-    if re.search(r'\(\d+단계\)', label) and '(1단계)' not in label:
-        return re.sub(r'\s*\(\d+단계\)', '', label)
+    if re.search(r'\(\d+\)', label) and '(1)' not in label:
+        return re.sub(r'\s*\(\d+\)', '', label)
     return label
 
 # 주문완료 외에는 ~단계 유지 
@@ -166,7 +166,7 @@ COMPLETION_KEYWORDS = ['주문완료', '구독완료']
 def should_clean_label(label):
     return (
         any(keyword in label for keyword in COMPLETION_KEYWORDS) and
-        re.search(r'\(\d+단계\)', label)
+        re.search(r'\(\d+\)', label)
     )
 
 
@@ -203,7 +203,7 @@ pairs_agg['target_id'] = pairs_agg['target'].apply(
 # ✅ 각 노드 라벨에서 단계 숫자 추출
 def extract_step(label):
     if label == "세션 시작": return 0
-    match = re.search(r"\((\d+)단계\)", label)
+    match = re.search(r"\((\d+)\)", label)
     return int(match.group(1)) if match else 0
 
 # ✅ 단계 수 기준으로 x좌표 계산 (node_map: 병합된 노드 적용)
