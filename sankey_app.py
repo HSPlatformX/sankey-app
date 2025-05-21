@@ -117,14 +117,25 @@ path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈�
 
 # ✅ pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
 # 0521. 입력받은 단계에 따라 시각화 
+
+def format_label(step, page, is_last=False):
+    return f"{page} ({step})" if is_last else f"({step}) {page}"
+    
 def path_to_pairs(path, value, start_step, max_step):
     pairs = []
     for i in range(len(path) - 1):
         step_num = i + 1
         if step_num < start_step or step_num >= max_step:
             continue
-        source = f"세션 시작" if i == 0 else f"({i+1}) {path[i]}"
-        target = f"({i+2}) {path[i+1]}"
+        #source = f"세션 시작" if i == 0 else f"({i+1}) {path[i]}"
+        #target = f"({i+2}) {path[i+1]}"
+        
+        is_source_last = (i + 1 == max_step - 1)
+        is_target_last = (i + 2 == max_step)
+        
+        source = "세션 시작" if i == 0 else format_label(i + 1, path[i], is_source_last)
+        target = format_label(i + 2, path[i + 1], is_target_last)
+        
         pairs.append((source, target, value))
     return pairs
     
