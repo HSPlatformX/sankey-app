@@ -20,7 +20,8 @@ selected_category = category_input if category_input else category_select
 
 st.markdown(f"### \U0001F50D 선택된 카테고리: `{selected_category}`")
 
-# 날짜 범위 입력 받기 (기본값: TODAY)
+# 날짜 범위 입력 받기 (기본값: 오늘 ~ 오늘)
+
 from datetime import date
 col3, col4 = st.columns(2)
 with col3:
@@ -30,9 +31,12 @@ with col4:
 
 
 # 시각화 단계 슬라이더 형태로  입력 받기 
+
 col_step1, col_step2 = st.columns(2)
+
 with col_step1:
-    start_step_input = st.slider("시작 단계", min_value=0, max_value=20, value=0)
+    start_step_input = st.slider("시작 단계", min_value=1, max_value=20, value=1)
+
 with col_step2:
     max_step_input = st.slider("최대 시각화 단계", min_value=1, max_value=30, value=6)
 
@@ -111,15 +115,24 @@ path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈�
 
 
 # ✅ pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
+# def path_to_pairs(path, value):
+#     pairs = []
+#     for i in range(len(path) - 1):
+#         source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1})"
+#         # source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1})"
+#         target = f"{path[i+1]} ({i+2})"
+#         pairs.append((source, target, value))
+#     return pairs
+
 # 0521. 입력받은 단계에 따라 시각화 
 def path_to_pairs(path, value, start_step, max_step):
     pairs = []
     for i in range(len(path) - 1):
-        step_num = i  # 세션시작: 0단계
+        step_num = i + 1
         if step_num < start_step or step_num >= max_step:
             continue
         source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1})"
-        target = f"{path[i+1]} ({i+1})"
+        target = f"{path[i+1]} ({i+2})"
         pairs.append((source, target, value))
     return pairs
     
