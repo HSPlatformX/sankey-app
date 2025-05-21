@@ -179,6 +179,16 @@ all_nodes_cleaned = [
 ]
 node_map = {name: i for i, name in enumerate(pd.unique(all_nodes_cleaned))}
 
+# 주문완료 외에는 -단계 유지 
+COMPLETION_KEYWORDS = ['주문완료', '구독완료']
+
+def should_clean_label(label):
+    return (
+        any(keyword in label for keyword in COMPLETION_KEYWORDS) and
+        re.search(r'\(\d+단계\)', label)
+    )
+
+
 # ✅ source/target 라벨을 숫자 ID로 매핑. 병합 라벨 적용(마지막 노드명 주문완료시 하나로 묶음)
 pairs_agg['source_id'] = pairs_agg['source'].apply(
     lambda label: clean_label_for_last_node(label) if should_clean_label(label) else label
@@ -212,14 +222,6 @@ targets = set(pairs_agg['target'])
 sources = set(pairs_agg['source'])
 last_nodes = targets - sources # 종착 노드 식별
 
-# 주문완료 외에는 -단계 유지 
-COMPLETION_KEYWORDS = ['주문완료', '구독완료']
-
-def should_clean_label(label):
-    return (
-        any(keyword in label for keyword in COMPLETION_KEYWORDS) and
-        re.search(r'\(\d+단계\)', label)
-    )
 
 # ✅ 종착 노드 라벨 최종 정제
 cleaned_labels = []
