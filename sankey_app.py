@@ -200,11 +200,19 @@ targets = set(pairs_agg['target'])
 sources = set(pairs_agg['source'])
 last_nodes = targets - sources # 종착 노드 식별
 
+# 주문완료 외에는 -단계 유지 
+COMPLETION_KEYWORDS = ['주문완료', '구독완료']
 
-# ✅ 노드 라벨 최종 정제
+def should_clean_label(label):
+    return (
+        any(keyword in label for keyword in COMPLETION_KEYWORDS) and
+        re.search(r'\(\d+단계\)', label)
+    )
+
+# ✅ 종착 노드 라벨 최종 정제
 cleaned_labels = []
 for label in node_map.keys():
-    if label in last_nodes:
+    if label in last_nodes and should_clean_label(label):
         cleaned_labels.append(clean_label_for_last_node(label))
     else:
         cleaned_labels.append(label)
