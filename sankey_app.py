@@ -116,15 +116,6 @@ path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈�
 
 
 # ✅ pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
-# def path_to_pairs(path, value):
-#     pairs = []
-#     for i in range(len(path) - 1):
-#         source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1})"
-#         # source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1})"
-#         target = f"{path[i+1]} ({i+2})"
-#         pairs.append((source, target, value))
-#     return pairs
-
 # 0521. 입력받은 단계에 따라 시각화 
 def path_to_pairs(path, value, start_step, max_step):
     pairs = []
@@ -246,7 +237,6 @@ fig = go.Figure(data=[go.Sankey(
         label=list(cleaned_labels), #노드 라벨
         pad=40,
         thickness=30,
-        color=['#f3f3f3'] * len(cleaned_labels),  # 밝은 회색 배경 (or 다양한 밝은 색)
         line=dict(color="rgba(0,0,0,0)", width=0),  # 윤곽선 제거
         x=node_x
     ),
