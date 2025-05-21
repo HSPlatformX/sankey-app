@@ -103,7 +103,27 @@ path_counts = session_paths['page'].value_counts().reset_index()
 path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈도수
 
 
+# 전체 세션 수 계산
+# total_sessions = len(session_paths)
+# total_sessions = path_counts['value'].sum()
+# 기준: 전체 세션의 1%
+# min_threshold = total_sessions * 0.01
+
+
+# 📍 전체 path에서 value 낮은(1%) path 제거 : 희소 경로 제거 
+# path_counts = path_counts[path_counts['value'] > min_threshold].reset_index(drop=True)
+
+
 # ✅ pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
+# def path_to_pairs(path, value):
+#     pairs = []
+#     for i in range(len(path) - 1):
+#         source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
+#         # source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1}단계)"
+#         target = f"{path[i+1]} ({i+2}단계)"
+#         pairs.append((source, target, value))
+#     return pairs
+
 # 0521. 입력받은 단계에 따라 시각화 
 def path_to_pairs(path, value, start_step, max_step):
     pairs = []
@@ -111,8 +131,8 @@ def path_to_pairs(path, value, start_step, max_step):
         step_num = i + 1
         if step_num < start_step or step_num >= max_step:
             continue
-        source = f"세션 시작" if i == 0 else f"{path[i]}"
-        target = f"{path[i+1]}"
+        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
+        target = f"{path[i+1]} ({i+2}단계)"
         pairs.append((source, target, value))
     return pairs
     
@@ -130,21 +150,24 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 # ✅ source-target 쌍 집계 (동일 경로는 합산)
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
+# ✅ 링크 기준 세션 수가 10 이하인 연결선 제거
+# pairs_agg = pairs_agg[pairs_agg['value'] > 5].reset_index(drop=True)
 
-# # ✅ 마지막 노드에서는 "(n단계)" 텍스트 제거#############################################################################
-# def clean_label_for_last_node(label):
-#   #  if re.search(r'\(\d+단계\)', label) and '(1단계)' not in label:
-#   #     return re.sub(r'\s*\(\d+단계\)', '', label)
-#     return label
 
-# # 주문완료 외에는 ~단계 유지 
-# COMPLETION_KEYWORDS = ['주문완료', '구독완료']
+# ✅ 마지막 노드에서는 "(n단계)" 텍스트 제거
+def clean_label_for_last_node(label):
+    if re.search(r'\(\d+단계\)', label) and '(1단계)' not in label:
+        return re.sub(r'\s*\(\d+단계\)', '', label)
+    return label
 
-# def should_clean_label(label):
-#     return (
-#         any(keyword in label for keyword in COMPLETION_KEYWORDS) and
-#         re.search(r'\(\d+단계\)', label)
-#     )
+# 주문완료 외에는 ~단계 유지 
+COMPLETION_KEYWORDS = ['주문완료', '구독완료']
+
+def should_clean_label(label):
+    return (
+        any(keyword in label for keyword in COMPLETION_KEYWORDS) and
+        re.search(r'\(\d+단계\)', label)
+    )
 
 
 # ✅ 노드 매핑 (각 label에 고유 index 단계 부여)
@@ -159,18 +182,22 @@ last_nodes = targets - sources
     # 4. 병합된 노드 리스트로 node_map 생성
 #all_nodes_cleaned = [maybe_clean(label) for label in all_nodes]
 
-# 라벨 그대로 사용
-all_nodes_cleaned = all_nodes  
+# 0521 정제 규칙을 명확히 반영해서 다시 구성
+all_nodes_cleaned = [
+    clean_label_for_last_node(label) if should_clean_label(label) else label
+    for label in all_nodes
+]
+node_map = {name: i for i, name in enumerate(pd.unique(all_nodes_cleaned))}
 
-# node map 생성
-node_map = {name: i for i, name in enumerate(pd.unique(all_nodes))}
 
-# source/target ID 매핑
-pairs_agg['source_id'] = pairs_agg['source'].map(node_map)
-pairs_agg['target_id'] = pairs_agg['target'].map(node_map)
+# ✅ source/target 라벨을 숫자 ID로 매핑. 병합 라벨 적용(마지막 노드명 주문완료시 하나로 묶음)
+pairs_agg['source_id'] = pairs_agg['source'].apply(
+    lambda label: clean_label_for_last_node(label) if should_clean_label(label) else label
+).map(node_map)
 
-# 라벨 정제 불필요
-cleaned_labels = list(node_map.keys())
+pairs_agg['target_id'] = pairs_agg['target'].apply(
+    lambda label: clean_label_for_last_node(label) if should_clean_label(label) else label
+).map(node_map)
 
 
 # ✅ 각 노드 라벨에서 단계 숫자 추출
@@ -192,12 +219,12 @@ for label in node_map.keys():
 
 
 # ✅ 종착 노드 라벨 최종 정제
-# cleaned_labels = []
-# for label in node_map.keys():
-#     if label in last_nodes and should_clean_label(label):
-#         cleaned_labels.append(clean_label_for_last_node(label))
-#     else:
-#         cleaned_labels.append(label)
+cleaned_labels = []
+for label in node_map.keys():
+    if label in last_nodes and should_clean_label(label):
+        cleaned_labels.append(clean_label_for_last_node(label))
+    else:
+        cleaned_labels.append(label)
 
 
 # 시각화에 포함된 세션 수
@@ -209,7 +236,6 @@ for label in node_map.keys():
 #마지막 페이지 count 
 # last_pages = df.groupby('user_session_id').tail(1)
 # st.write(last_pages['page'].value_counts())
-
 
 
 # ✅✅ Sankey 시각화 다이아그램 그리기 ✅✅
@@ -228,30 +254,6 @@ fig = go.Figure(data=[go.Sankey(
         value=pairs_agg['value'] # 링크 굵기(빈도수)
     )
 )])
-
-
-# 단계별 x위치 추출
-step_labels = []
-step_positions = []
-
-for step in sorted(set(depth_map.values())):
-    matching_x = [x for lbl, x in zip(node_map.keys(), node_x) if extract_step(lbl) == step]
-    if matching_x:
-        avg_x = sum(matching_x) / len(matching_x)
-        step_labels.append(f"{step}단계")
-        step_positions.append(avg_x)
-
-# Sankey 위쪽에 단계 텍스트 표시
-for label, xpos in zip(step_labels, step_positions):
-    fig.add_annotation(
-        x=xpos,
-        y=1.05,  # 다이어그램 위쪽
-        text=label,
-        showarrow=False,
-        font=dict(size=16, color="black"),
-        xanchor="center"
-    )
-
 
 # ✅ 레이아웃 설정 및 출력
 fig.update_layout(
