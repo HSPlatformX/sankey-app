@@ -30,8 +30,15 @@ with col4:
     end_date = st.date_input("조회 종료 날짜", value=date(2025, 4, 1))
 
 
-# 시각화 단계 입력 받기 
-max_step_input = st.slider("최대 시각화 단계 수를 선택하세요", min_value=1, max_value=20, value=6)
+# 시각화 단계 슬라이더 형태로  입력 받기 
+# max_step_input = st.slider("최대 시각화 단계 수를 선택하세요", min_value=1, max_value=20, value=6)
+
+col_step1, col_step2 = st.columns(2)
+with col_step1:
+    start_step_input = st.slider("시작 단계", min_value=1, max_value=20, value=1)
+with col_step2:
+    max_step_input = st.slider("최대 시각화 단계", min_value=start_step_input, max_value=30, value=start_step_input+5)
+
 
 
 # GCP 인증 처리
@@ -114,11 +121,12 @@ path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈�
 #     return pairs
 
 # 0521. 입력받은 단계에 따라 시각화 
-def path_to_pairs(path, value, max_step):
+def path_to_pairs(path, value, start_step, max_step):
     pairs = []
     for i in range(len(path) - 1):
-        if i + 1 > max_step:  # 단계 제한
-            break
+        step_num = i + 1
+        if step_num < start_step or step_num >= max_step:
+            continue
         source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
         target = f"{path[i+1]} ({i+2}단계)"
         pairs.append((source, target, value))
@@ -127,8 +135,9 @@ def path_to_pairs(path, value, max_step):
 # ✅ 모든 path에 대해 source-target 쌍 생성
 pairs = []
 for _, row in path_counts.iterrows():
-    # pairs.extend(path_to_pairs(row['path'], row['value'])) #0521
-    pairs.extend(path_to_pairs(row['path'], row['value'], max_step_input))
+    # pairs.extend(path_to_pairs(row['path'], row['value'])) 
+    pairs.extend(path_to_pairs(row['path'], row['value'], start_step_input, max_step_input)) #0521
+
 
 # ✅ source-target-value DataFrame 생성
 pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
