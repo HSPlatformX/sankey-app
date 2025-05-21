@@ -123,8 +123,8 @@ def path_to_pairs(path, value, start_step, max_step):
         step_num = i + 1
         if step_num < start_step or step_num >= max_step:
             continue
-        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1})"
-        target = f"{path[i+1]} ({i+2})"
+        source = f"세션 시작" if i == 0 else f"({i+1}) {path[i]}"
+        target = f"({i+2}) {path[i+1]}"
         pairs.append((source, target, value))
     return pairs
     
