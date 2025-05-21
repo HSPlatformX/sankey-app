@@ -243,9 +243,10 @@ for label in node_map.keys():
 fig = go.Figure(data=[go.Sankey(
     arrangement="fixed", # 노드 자동배치 막기
     node=dict(
-        pad=20,
+        label=list(cleaned_labels), #노드 라벨
+        pad=40,
         thickness=30,
-        label=list(cleaned_labels), # 노드 라벨
+        color=['#f3f3f3'] * len(cleaned_labels),  # 밝은 회색 배경 (or 다양한 밝은 색)
         line=dict(color="rgba(0,0,0,0)", width=0),  # 윤곽선 제거
         x=node_x
     ),
