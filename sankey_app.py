@@ -88,14 +88,14 @@ path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈�
 
 
 # 전체 세션 수 계산
-total_sessions = len(session_paths)
+# total_sessions = len(session_paths)
 # total_sessions = path_counts['value'].sum()
 # 기준: 전체 세션의 1%
-min_threshold = total_sessions * 0.01
+# min_threshold = total_sessions * 0.01
 
 
 # 📍 전체 path에서 value 낮은(1%) path 제거 : 희소 경로 제거 
-path_counts = path_counts[path_counts['value'] > min_threshold].reset_index(drop=True)
+# path_counts = path_counts[path_counts['value'] > min_threshold].reset_index(drop=True)
 
 
 # ✅ pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
