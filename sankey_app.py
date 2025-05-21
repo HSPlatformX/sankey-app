@@ -115,15 +115,6 @@ path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈�
 
 
 # ✅ pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
-# def path_to_pairs(path, value):
-#     pairs = []
-#     for i in range(len(path) - 1):
-#         source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
-#         # source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1}단계)"
-#         target = f"{path[i+1]} ({i+2}단계)"
-#         pairs.append((source, target, value))
-#     return pairs
-
 # 0521. 입력받은 단계에 따라 시각화 
 def path_to_pairs(path, value, start_step, max_step):
     pairs = []
@@ -131,7 +122,7 @@ def path_to_pairs(path, value, start_step, max_step):
         step_num = i + 1
         if step_num < start_step or step_num >= max_step:
             continue
-        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
+        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1})"
         target = f"{path[i+1]} ({i+2}단계)"
         pairs.append((source, target, value))
     return pairs
@@ -238,6 +229,7 @@ for label in node_map.keys():
 # st.write(last_pages['page'].value_counts())
 
 
+
 # ✅✅ Sankey 시각화 다이아그램 그리기 ✅✅
 fig = go.Figure(data=[go.Sankey(
     arrangement="fixed", # 노드 자동배치 막기
@@ -254,6 +246,30 @@ fig = go.Figure(data=[go.Sankey(
         value=pairs_agg['value'] # 링크 굵기(빈도수)
     )
 )])
+
+
+# 단계별 x위치 추출
+step_labels = []
+step_positions = []
+
+for step in sorted(set(depth_map.values())):
+    matching_x = [x for lbl, x in zip(node_map.keys(), node_x) if extract_step(lbl) == step]
+    if matching_x:
+        avg_x = sum(matching_x) / len(matching_x)
+        step_labels.append(f"{step}단계")
+        step_positions.append(avg_x)
+
+# Sankey 위쪽에 단계 텍스트 표시
+for label, xpos in zip(step_labels, step_positions):
+    fig.add_annotation(
+        x=xpos,
+        y=1.05,  # 다이어그램 위쪽
+        text=label,
+        showarrow=False,
+        font=dict(size=16, color="black"),
+        xanchor="center"
+    )
+
 
 # ✅ 레이아웃 설정 및 출력
 fig.update_layout(
