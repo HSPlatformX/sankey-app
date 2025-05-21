@@ -102,8 +102,8 @@ path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈�
 def path_to_pairs(path, value):
     pairs = []
     for i in range(len(path) - 1):
-        # source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
-        source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1}단계)"
+        source = f"세션 시작" if i == 0 else f"{path[i]} ({i+1}단계)"
+        # source = f"세션 시작" if i == 0 and path[i] == "세션 시작" else f"{path[i]} ({i+1}단계)"
         target = f"{path[i+1]} ({i+2}단계)"
         pairs.append((source, target, value))
     return pairs
@@ -121,7 +121,7 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
 
 # ✅ 링크 기준 세션 수가 10 이하인 연결선 제거
-pairs_agg = pairs_agg[pairs_agg['value'] > 5].reset_index(drop=True)
+# pairs_agg = pairs_agg[pairs_agg['value'] > 5].reset_index(drop=True)
 
 
 # ✅ 마지막 노드에서는 "(n단계)" 텍스트 제거
