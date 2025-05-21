@@ -219,14 +219,13 @@ for label in node_map.keys():
 
 
 # ✅ 종착 노드 라벨 최종 정제
-# cleaned_labels = []
-# for label in node_map.keys():
-#     if label in last_nodes and should_clean_label(label):
-#         cleaned_labels.append(clean_label_for_last_node(label))
-#     else:
-#         cleaned_labels.append(label)
-# ✅ 라벨 오류 방지를 위해 node_map 키값을 안전하게 문자열로 변환
-cleaned_labels = [str(label) if label else "빈값" for label in node_map.keys()]
+cleaned_labels = []
+for label in node_map.keys():
+    if label in last_nodes and should_clean_label(label):
+        cleaned_labels.append(clean_label_for_last_node(label))
+    else:
+        cleaned_labels.append(label)
+
 
 # 시각화에 포함된 세션 수
 # visualized_sessions = path_counts['value'].sum()
@@ -245,7 +244,8 @@ fig = go.Figure(data=[go.Sankey(
     node=dict(
         pad=20,
         thickness=30,
-        line=dict(color="rgba(0,0,0,0)", width=0),
+        label=list(cleaned_labels), # 노드 라벨
+        line=dict(color="black", width=0.5),
         x=node_x
     ),
     link=dict(
@@ -257,8 +257,8 @@ fig = go.Figure(data=[go.Sankey(
 
 # ✅ 레이아웃 설정 및 출력
 fig.update_layout(
-    title_text=f"세션 기반 Sankey for {selected_category}",
-    font=dict(size=25, color="black"),
+    title_text=f"세션 기반 Sankey for `{selected_category}`",
+    font=dict(size=20),
     width=1200,
     height=1000,
     margin=dict(l=20, r=20, t=60, b=20)
