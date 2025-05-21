@@ -5,6 +5,7 @@ from google.oauth2 import service_account
 from google.cloud import bigquery
 import base64
 import re
+import plotly.io as pio
 
 # 페이지 설정
 st.set_page_config(layout="wide")
