@@ -219,13 +219,14 @@ for label in node_map.keys():
 
 
 # ✅ 종착 노드 라벨 최종 정제
-cleaned_labels = []
-for label in node_map.keys():
-    if label in last_nodes and should_clean_label(label):
-        cleaned_labels.append(clean_label_for_last_node(label))
-    else:
-        cleaned_labels.append(label)
-
+# cleaned_labels = []
+# for label in node_map.keys():
+#     if label in last_nodes and should_clean_label(label):
+#         cleaned_labels.append(clean_label_for_last_node(label))
+#     else:
+#         cleaned_labels.append(label)
+# ✅ 라벨 오류 방지를 위해 node_map 키값을 안전하게 문자열로 변환
+cleaned_labels = [str(label) if label else "빈값" for label in node_map.keys()]
 
 # 시각화에 포함된 세션 수
 # visualized_sessions = path_counts['value'].sum()
