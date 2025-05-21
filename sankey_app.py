@@ -165,10 +165,6 @@ targets = set(pairs_agg['target'])
 sources = set(pairs_agg['source'])
 last_nodes = targets - sources
 
-    # 3. 마지막 노드는 단계 제거된 이름으로 통일
-def maybe_clean(label):
-    return clean_label_for_last_node(label) if label in last_nodes else label
-
     # 4. 병합된 노드 리스트로 node_map 생성
 #all_nodes_cleaned = [maybe_clean(label) for label in all_nodes]
 
@@ -215,12 +211,6 @@ for label in node_map.keys():
     else:
         step = extract_step(label)
         node_x.append(step / max_depth if max_depth > 0 else 0.1)
-
-
-
-targets = set(pairs_agg['target'])
-sources = set(pairs_agg['source'])
-last_nodes = targets - sources # 종착 노드 식별
 
 
 # ✅ 종착 노드 라벨 최종 정제
