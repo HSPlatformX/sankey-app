@@ -244,8 +244,7 @@ fig = go.Figure(data=[go.Sankey(
     node=dict(
         pad=20,
         thickness=30,
-        label=list(cleaned_labels), # 노드 라벨
-        color = "blue",
+        # label=list(cleaned_labels), # 노드 라벨
         line=dict(color="rgba(0,0,0,0)", width=0),  # 윤곽선 제거
         x=node_x
     ),
@@ -260,8 +259,8 @@ fig = go.Figure(data=[go.Sankey(
 fig.update_layout(
     title_text=f"세션 기반 Sankey for `{selected_category}`",
     font_family="Courier New",
-    font_color="blue",
-    font=dict(size=22),
+    # font_color="blue",
+    font=dict(size=22, color="blue" ),
     width=1200,
     height=1000,
     margin=dict(l=20, r=20, t=60, b=20)
