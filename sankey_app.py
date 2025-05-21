@@ -251,7 +251,7 @@ fig = go.Figure(data=[go.Sankey(
 # ✅ 레이아웃 설정 및 출력
 fig.update_layout(
     title_text=f"세션 기반 Sankey for `{selected_category}`",
-    font_family="Courier New",
+    # font_family="Courier New",
     # font_color="blue",
     font=dict(size=22, color="blue"),
     width=1200,
