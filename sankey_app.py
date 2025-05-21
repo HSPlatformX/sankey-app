@@ -5,7 +5,7 @@ from google.oauth2 import service_account
 from google.cloud import bigquery
 import base64
 import re
-import plotly.io as pio
+import plotly.colors
 
 # 페이지 설정
 st.set_page_config(layout="wide")
@@ -256,33 +256,20 @@ fig = go.Figure(data=[go.Sankey(
     )
 )])
 
-# # ✅ 레이아웃 설정 및 출력
-# fig.update_layout(
-#     title_text=f"세션 기반 Sankey for `{selected_category}`",
-#     font_family="Courier New",
-#     # font_color="blue",
-#     font=dict(size=22, color="blue"),
-#     width=1200,
-#     height=1000,
-#     margin=dict(l=20, r=20, t=60, b=20)
-# )
 
-# # ✅ Streamlit에 시각화 결과 출력
-# st.plotly_chart(fig, use_container_width=True)
+# ✅ 레이아웃 설정 및 출력
+fig.update_layout(
+    title_text=f"세션 기반 Sankey for `{selected_category}`",
+    font_family="Courier New",
+    # font_color="blue",
+    font=dict(size=22, color="blue"),
+    width=1200,
+    height=1000,
+    margin=dict(l=20, r=20, t=60, b=20)
+)
+
+# ✅ Streamlit에 시각화 결과 출력
+st.plotly_chart(fig, use_container_width=True)
 
 
-# HTML 및 CSS 삽입
-sankey_html = pio.to_html(fig, full_html=False, include_plotlyjs='cdn')
-custom_css = """
-<style>
-    .node-label-text-path {
-        fill: black !important;
-        font-weight: bold !important;
-        text-shadow: 0px 0px 3px rgba(0,0,0,0.7);
-    }
-</style>
-"""
-final_html = custom_css + sankey_html
 
-# 출력
-st.components.v1.html(final_html, height=1000, scrolling=True)
