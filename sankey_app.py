@@ -12,7 +12,8 @@ st.set_page_config(layout="wide")
 st.title("\U0001F9ED Sankey Diagram")
 
 # 카테고리 입력 받기   
-category_select = st.selectbox('카테고리 선택', [
+st.markdown("### 📌 카테고리 선택")
+category_select = st.selectbox('', [
     'TV',
     '가습기',
     '공기청정기',
@@ -36,10 +37,12 @@ category_select = st.selectbox('카테고리 선택', [
 ])
 selected_category = category_select
 
-st.markdown(f"### \U0001F50D 구매 카테고리: `{selected_category}`")
+st.markdown(f"### \U0001F50D 선택된 구매 카테고리: `{selected_category}`")
 
 # 날짜 범위 입력 받기 
 from datetime import date
+
+st.markdown("### 📅 날짜 선택")
 col3, col4 = st.columns(2)
 with col3:
     start_date = st.date_input("조회 시작 날짜", value=date(2025, 4, 1))  #오늘날짜: value=date.today()
@@ -47,17 +50,19 @@ with col4:
     end_date = st.date_input("조회 종료 날짜", value=date(2025, 4, 3))
 
 
-# 시각화 단계 슬라이더 형태로  입력 받기 
+# 시각화 단계 슬라이더 형태로 입력 받기 
+
+st.markdown("### 📊 시각화 단계 범위")
 col_step1, col_step2 = st.columns(2)
 with col_step1:
     start_step_input = st.slider("시작 단계", min_value=1, max_value=20, value=1)
 
 with col_step2:
-    max_step_input = st.slider("최대 시각화 단계", min_value=1, max_value=30, value=6)
+    max_step_input = st.slider("끝 단계", min_value=1, max_value=30, value=6)
 
 # 검증: 시작 > 최대 단계일 경우 알림 및 중단
 if start_step_input > max_step_input:
-    st.error("❗ 시작 단계는 최대 시각화 단계보다 클 수 없습니다. 단계를 다시 설정해주세요.")
+    st.error("❗ 시작 단계는 끝 단계보다 클 수 없습니다. 단계를 다시 설정해주세요.")
     st.stop()
 
 
