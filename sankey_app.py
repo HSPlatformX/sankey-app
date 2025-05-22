@@ -112,7 +112,7 @@ df = df[df['user_session_id'].isin(sessions_with_step1)]
 
 # 2. 세션 내 step 순 정렬 
 df = df.sort_values(['user_session_id', 'step'])
-df['is_start'] = df['step'] == 1  # (여기서도 step은 원본 그대로 사용)
+
 
 # 3. 세션별 페이지 흐름을 리스트로 추출 
 session_paths = df.groupby('user_session_id')['page'].apply(list).reset_index()
@@ -122,8 +122,8 @@ path_counts = session_paths['page'].value_counts().reset_index()
 path_counts.columns = ['path', 'value'] # path: 페이지 리스트, value: 빈도수
 
 # pair 생성 : 각 path를 (source → target) 쌍으로 변환하는 함수 정의
-# 0521. 입력받은 단계에 따라 시각화 
-def path_to_pairs(path, value, start_step, max_step):
+
+def path_to_pairs(path, value, start_step, max_step):  # 입력받은 단계에 따라 시각화 
     pairs = []
     for i in range(len(path) - 1):
         step_num = i + 1
@@ -137,8 +137,7 @@ def path_to_pairs(path, value, start_step, max_step):
 # 모든 path에 대해 source-target 쌍 생성
 pairs = []
 for _, row in path_counts.iterrows():
-    # pairs.extend(path_to_pairs(row['path'], row['value'])) 
-    pairs.extend(path_to_pairs(row['path'], row['value'], start_step_input, max_step_input)) #0521
+    pairs.extend(path_to_pairs(row['path'], row['value'], start_step_input, max_step_input)) 
 
 
 # source-target-value DataFrame 생성
@@ -147,9 +146,6 @@ pairs_df = pd.DataFrame(pairs, columns=['source', 'target', 'value'])
 
 # source-target 쌍 집계 (동일 경로는 합산)
 pairs_agg = pairs_df.groupby(['source', 'target'])['value'].sum().reset_index()
-
-# 링크 기준 세션 수가 10 이하인 연결선 제거
-# pairs_agg = pairs_agg[pairs_agg['value'] > 5].reset_index(drop=True)
 
 
 # 마지막 노드에서는 "(단계)" 제거
@@ -177,14 +173,13 @@ targets = set(pairs_agg['target'])
 sources = set(pairs_agg['source'])
 last_nodes = targets - sources
 
-    # 3. 병합된 노드 리스트로 node_map 생성
-#all_nodes_cleaned = [maybe_clean(label) for label in all_nodes]
 
-# 0521 정제 규칙을 명확히 반영해서 다시 구성
+# 0521 정제 규칙(주문완료 외 그대로 유지) 반영해서 다시 구성
 all_nodes_cleaned = [
     clean_label_for_last_node(label) if should_clean_label(label) else label
     for label in all_nodes
 ]
+# 정제된 라벨 리스트에서 중복 제거 후, 각 라벨에 고유 인덱스 부여
 node_map = {name: i for i, name in enumerate(pd.unique(all_nodes_cleaned))}
 
 
