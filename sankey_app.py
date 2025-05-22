@@ -253,7 +253,11 @@ fig.update_layout(
         xanchor='center'
     ),
 
-    font=dict(size=20, color="red"), #색상이 안먹힘..
+    font=dict(
+        size=22, 
+        family="Noto Sans KR", 
+        color="red"  #색상이 안먹힘..
+    ),
     width=1200,
     height=1000,
     margin=dict(l=20, r=20, t=100, b=40)
