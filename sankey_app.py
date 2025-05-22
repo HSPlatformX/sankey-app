@@ -230,10 +230,9 @@ for label in node_map.keys():
 fig = go.Figure(data=[go.Sankey(
     arrangement="fixed", # 노드 자동배치 막기
     node=dict(
-        label=list(cleaned_labels), #노드 라벨
+        label=list(cleaned_labels), #노드 라벨(text)
         pad=40,
         thickness=30,
-       # line=dict(color="rgba(0,0,0,0)", width=0),  # 윤곽선 제거
         x=node_x
     ),
     link=dict(
