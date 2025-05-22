@@ -123,7 +123,7 @@ def path_to_pairs(path, value, start_step, max_step):
         step_num = i + 1
         if step_num < start_step or step_num >= max_step:
             continue
-        source = f"세션 시작" if i == 0 else f"({i+1}) {path[i]}"
+        source = f"(1) 세션 시작" if i == 0 else f"({i+1}) {path[i]}"
         target = f"({i+2}) {path[i+1]}"
         pairs.append((source, target, value))
     return pairs
@@ -194,7 +194,7 @@ pairs_agg['target_id'] = pairs_agg['target'].apply(
 
 # ✅ 각 노드 라벨에서 단계 숫자 추출
 def extract_step(label):
-    if label == "세션 시작": return 0
+    if label == "(1) 세션 시작": return 0
     match = re.search(r"\((\d+)\)", label)
     return int(match.group(1)) if match else 0
 
@@ -203,7 +203,7 @@ depth_map = {label: extract_step(label) for label in node_map.keys()}
 max_depth = max(depth_map.values()) if depth_map else 1
 node_x = []
 for label in node_map.keys():
-    if label == "세션 시작":
+    if label == "(1) 세션 시작":
         node_x.append(0.0)   # 세션 시작은 항상 좌측 고정
     else:
         step = extract_step(label)
@@ -250,7 +250,7 @@ fig = go.Figure(data=[go.Sankey(
 
 # ✅ 레이아웃 설정 및 출력
 fig.update_layout(
-    title_text=f"세션 기반 Sankey for `{selected_category}`",
+    title_text=f"{selected_category} 구매 세션 여정",
     # font_family="Courier New",
     # font_color="blue",
     font=dict(size=22, color="blue"),
