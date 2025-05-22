@@ -12,7 +12,7 @@ st.set_page_config(layout="wide")
 st.title("\U0001F9ED Sankey Diagram")
 
 # 카테고리 입력 받기   
-st.markdown("### 📌 카테고리 선택")
+st.markdown("<div style='font-size:16px; font-weight:400;'>카테고리 선택</div>", unsafe_allow_html=True)
 category_select = st.selectbox('', [
     'TV',
     '가습기',
@@ -42,7 +42,7 @@ st.markdown(f"### \U0001F50D 선택된 구매 카테고리: `{selected_category}
 # 날짜 범위 입력 받기 
 from datetime import date
 
-st.markdown("### 📅 날짜 선택")
+st.markdown("<div style='font-size:16px; font-weight:400;'>조회 날짜</div>", unsafe_allow_html=True)
 col3, col4 = st.columns(2)
 with col3:
     start_date = st.date_input("조회 시작 날짜", value=date(2025, 4, 1))  #오늘날짜: value=date.today()
@@ -52,7 +52,7 @@ with col4:
 
 # 시각화 단계 슬라이더 형태로 입력 받기 
 
-st.markdown("### 📊 시각화 단계 범위")
+st.markdown("<div style='font-size:16px; font-weight:400;'>시각화 단계</div>", unsafe_allow_html=True)
 col_step1, col_step2 = st.columns(2)
 with col_step1:
     start_step_input = st.slider("시작 단계", min_value=1, max_value=20, value=1)
