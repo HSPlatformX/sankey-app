@@ -233,7 +233,7 @@ fig = go.Figure(data=[go.Sankey(
         label=list(cleaned_labels), #노드 라벨
         pad=40,
         thickness=30,
-        line=dict(color="rgba(0,0,0,0)", width=0),  # 윤곽선 제거
+       # line=dict(color="rgba(0,0,0,0)", width=0),  # 윤곽선 제거
         x=node_x
     ),
     link=dict(
@@ -254,7 +254,7 @@ fig.update_layout(
     ),
 
     font=dict(
-        size=22, 
+        size=21, 
         family="Noto Sans KR", 
         color="red"  #색상이 안먹힘..
     ),
