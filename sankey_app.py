@@ -19,32 +19,38 @@ st.title("\U0001F9ED Sankey Diagram")
 # with col2:
     
 category_select = st.selectbox('카테고리 선택', [
+    'TV',
     '가습기',
     '공기청정기',
     '김치냉장고',
+    '냉장고',
+    '노트북',
+    '세탁기',
     '스탠바이미',
     '식기세척기',
     '에어로타워',
+    '에어컨',
     '워시콤보',
     '워시타워',
     '의류건조기',
+    '의류관리기',
     '전기레인지',
+    '정수기',
     '제습기',
     '청소기',
     '컨버터블 패키지'
 ])
 selected_category = category_select
 
-st.markdown(f"### \U0001F50D 선택된 카테고리: `{selected_category}`")
+st.markdown(f"### \U0001F50D 구매 카테고리: `{selected_category}`")
 
-# 날짜 범위 입력 받기 (기본값: 오늘 ~ 오늘)
-
+# 날짜 범위 입력 받기 
 from datetime import date
 col3, col4 = st.columns(2)
 with col3:
     start_date = st.date_input("조회 시작 날짜", value=date(2025, 4, 1))  #오늘날짜: value=date.today()
 with col4:
-    end_date = st.date_input("조회 종료 날짜", value=date(2025, 4, 1))
+    end_date = st.date_input("조회 종료 날짜", value=date(2025, 4, 3))
 
 
 # 시각화 단계 슬라이더 형태로  입력 받기 
@@ -266,9 +272,13 @@ fig = go.Figure(data=[go.Sankey(
 
 # ✅ 레이아웃 설정 및 출력
 fig.update_layout(
-    title_text=f"{selected_category} 구매 세션 여정",
-    # font_family="Courier New",
-    # font_color="blue",
+     title=dict(
+        text=f"{selected_category}를 구매한 세션의 전체 여정",
+        font=dict(size=28, color="blue"),  # 제목 글자 크기와 색상
+        x=0.5,  # 제목을 수평 중앙에 배치 (0: 왼쪽, 1: 오른쪽)
+        xanchor='center'
+    ),
+    # title_text=f"{selected_category}를 구매한 세션의 전체 여정",
     font=dict(size=22, color="blue"),
     width=1200,
     height=1000,
