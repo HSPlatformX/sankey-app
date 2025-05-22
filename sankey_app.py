@@ -12,12 +12,28 @@ st.set_page_config(layout="wide")
 st.title("\U0001F9ED Sankey Diagram")
 
 # UI에서 카테고리 입력 받기
-col1, col2 = st.columns([2, 1])  # 비율은 필요에 따라 조정 가능
-with col1:
-    category_input = st.text_input('카테고리를 입력하세요:', '')
-with col2:
-    category_select = st.selectbox('카테고리 선택', ['스탠바이미', '냉장고', '세탁기', 'TV'])
-selected_category = category_input if category_input else category_select
+
+# col1, col2 = st.columns([2, 1])  # 비율은 필요에 따라 조정 가능
+# with col1:
+#    category_input = st.text_input('카테고리를 입력하세요:', '')
+# with col2:
+    
+category_select = st.selectbox('카테고리 선택', [
+    '가습기',
+    '공기청정기',
+    '김치냉장고',
+    '스탠바이미',
+    '식기세척기',
+    '에어로타워',
+    '워시콤보',
+    '워시타워',
+    '의류건조기',
+    '전기레인지',
+    '제습기',
+    '청소기',
+    '컨버터블 패키지'
+])
+selected_category = category_select
 
 st.markdown(f"### \U0001F50D 선택된 카테고리: `{selected_category}`")
 
