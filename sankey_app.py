@@ -273,7 +273,7 @@ fig = go.Figure(data=[go.Sankey(
 # ✅ 레이아웃 설정 및 출력
 fig.update_layout(
      title=dict(
-        text=f"'{selected_category}'를 구매한 세션의 {start_step}~{end_step} 단계별 여정",
+        text=f"'{selected_category}'를 구매한 세션의 {start_step_input}~{max_step_input} 단계별 여정",
         font=dict(size=25, color="black"),  # 제목 글자 크기와 색상
         x=0.5,  # 제목을 수평 중앙에 배치 (0: 왼쪽, 1: 오른쪽)
         xanchor='center'
